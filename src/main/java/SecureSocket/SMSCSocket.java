@@ -2,7 +2,7 @@ package SecureSocket;
 
 import SecureSocket.Exception.SMSCException;
 import SecureSocket.KeyManagement.KeyManager;
-import sun.text.resources.cldr.pa.FormatData_pa_Arab;
+//import sun.text.resources.cldr.pa.FormatData_pa_Arab;
 
 import java.io.*;
 import java.net.DatagramPacket;
