@@ -22,32 +22,38 @@ public class SMSCSocket extends MulticastSocket {
     public static final String SECURE_PAYLOAD_VIOLATED = "Secure Payload Violated";
     public static final String INTEGRITY_CONTROL_VIOLATED = "Integrity Control Violated";
 
-
-    private final Properties properties;
     private final String listSessionHash;
 
     private final String chatsSession;
-    private final KeyManager manager;
+
     private String peerId;
     
     private int seqNum;
 
     private Map<String, Set<String  >> nouceMap;
 
+    //CIA Context
+    private KeyManager manager;
+    private Confidenciality confidenciality;
+    private Integrity integrity;
 
-    public SMSCSocket(SocketAddress bindaddr,String peerId,Properties properties) throws Exception {
+    public SMSCSocket(SocketAddress bindaddr,String peerId,KeyManager manager,String id) throws Exception {
         super(bindaddr);
         this.chatsSession = bindaddr.toString();
-        this.properties = properties;
         listSessionHash = genListSessionHash();
-        manager = new KeyManager(properties);
+        this.manager = manager;
         this.peerId = peerId;
         seqNum = 0;
-        nouceMap = new HashMap<String, Set<String>>(100);
+        nouceMap = new HashMap<>(100);
+
+        //CIA
+        this.confidenciality = new Confidenciality(id,manager);
+        this.integrity = new Integrity(this.manager.getPropertiesFor(id));
+
     }
 
-    public SMSCSocket(int port, String peerId, Properties properties) throws Exception {
-        this(new InetSocketAddress(port),peerId,properties);
+    public SMSCSocket(int port, String peerId,KeyManager manager,String id) throws Exception {
+        this(new InetSocketAddress(port),peerId,manager,id);
     }
 
 
@@ -82,20 +88,19 @@ public class SMSCSocket extends MulticastSocket {
         dataStream.write(securePayload);
         dataStream.writeUTF(genMac(securePayload));
 
-
         return byteStream.toByteArray();
     }
 
     private String genMac(byte[] securePayload) {
-        return null; //todo
+        return "todo"; //todo
     }
 
     private int getMacLenght(){
-        return 0;
+        return 0; //TODO
     }
 
     private int getHashSize(){
-        return 0;
+        return 0; //TODO
     }
 
     /**
@@ -118,15 +123,15 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private byte[] encrypt(byte[] toByteArray) {
-        return null;
+        return confidenciality.encrypt(toByteArray);
     }
 
     private String genIntegrityControl(byte[] messagePayload) {
-        return null; //TODO
+        return Base64.getEncoder().encodeToString(integrity.hash(messagePayload)); //TODO
     }
 
     private String genRandomNonce() {
-        return null; //TODO;
+        return ""; //TODO;
     }
 
     @Override
@@ -194,11 +199,10 @@ public class SMSCSocket extends MulticastSocket {
         if(!actual.equals(expected)){
             throw new SMSCException(message);
         }
-
     }
 
     private byte[] decrypt(byte[] toByteArray) {
-        return null; //TODO
+        return confidenciality.decrypt(toByteArray);
     }
 
 

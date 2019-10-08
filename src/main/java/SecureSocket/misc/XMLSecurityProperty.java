@@ -39,7 +39,7 @@ public class XMLSecurityProperty {
     public static final String MAKKS = "MAKKS";
 
     private static Pattern r = Pattern.compile(XML_REGEX);
-    public List<Properties> getPropertiesFrom(String fileName) throws IOException {
+    public static List<Properties> getPropertiesFrom(String fileName) throws IOException {
         List<Properties> propList = new LinkedList<>();
 
         byte[] encoded = Files.readAllBytes(Paths.get(fileName));

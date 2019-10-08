@@ -1,11 +1,10 @@
 package SecureSocket;
 
-import javax.crypto.BadPaddingException;
+import SecureSocket.KeyManagement.KeyManager;
+import SecureSocket.misc.XMLSecurityProperty;
+
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.util.Properties;
 
@@ -14,16 +13,18 @@ public class Confidenciality {
     private Cipher c;
     private Key key;
     private IvParameterSpec ivSpec;
+    private KeyManager keyRing;
+    private Properties prop;
 
-    public Confidenciality(Properties properties) throws NoSuchProviderException, NoSuchPaddingException {
-        //GUARDAR NOUTRO SITIO : MELHORIAS FUTURAS
-        key = new SecretKeySpec(getKey(), getAlg());
-        ivSpec = new IvParameterSpec(getIV());
-        try {
-            c = Cipher.getInstance(getCONF(), getAlg());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+    public Confidenciality(String id, KeyManager keyManager) throws Exception {
+        keyRing = keyManager;
+        this.prop = keyManager.getPropertiesFor(id);
+        c = Cipher.getInstance(prop.getProperty(XMLSecurityProperty.SEA) + "/"
+                + prop.get(XMLSecurityProperty.MODE) + "/"
+                + prop.getProperty(XMLSecurityProperty.PADDING));
+
+        key = keyRing.getKey(id);
+        ivSpec = keyRing.getIV(c);
     }
 
     public byte[] handleException(Handler handler){
@@ -47,26 +48,6 @@ public class Confidenciality {
             c.init(Cipher.DECRYPT_MODE, key, ivSpec);
             return c.doFinal(input);
         });
-    }
-
-    //TODO
-    private byte[] getIV(){
-        return null;
-    }
-
-    //TODO
-    private byte[] getKey(){
-        return null;
-    }
-
-    //TODO
-    private String getAlg(){
-        return null;
-    }
-
-    //TODO
-    private String getCONF(){
-        return null;
     }
 
 }

@@ -1,21 +1,25 @@
 package SecureSocket;
 
+import SecureSocket.KeyManagement.KeyManager;
+import SecureSocket.misc.XMLSecurityProperty;
+
 import java.security.MessageDigest;
 import java.util.Properties;
 
 public class Integrity {
 
     private MessageDigest hashF;
-
-    public Integrity(Properties properties){
+    private Properties prop;
+    public Integrity(Properties prop){
+        this.prop =prop;
         try{
-            hashF = MessageDigest.getInstance(getAlg());
+            hashF = MessageDigest.getInstance(prop.getProperty(XMLSecurityProperty.INTHASH));
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public byte[] Hash(byte[] input){
+    public byte[] hash(byte[] input){
         return hashF.digest(input);
     }
 
