@@ -18,7 +18,7 @@ public class PayLoadClass {
         FromPeerID = dataStream.readUTF();
         SeqNr = dataStream.readInt();
         RandomNonce = dataStream.readInt();
-        Message_IntegrityControl = dataStream.readAllBytes();
+       // Message_IntegrityControl = dataStream.readAllBytes(); TODO
     }
 
     public String getFromPeerID() {

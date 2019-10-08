@@ -4,7 +4,6 @@ import SecureSocket.Cripto.Confidenciality;
 import SecureSocket.Cripto.Integrity;
 import SecureSocket.Exception.SMSCException;
 import SecureSocket.KeyManagement.KeyManager;
-//import sun.text.resources.cldr.pa.FormatData_pa_Arab;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -58,7 +57,6 @@ public class SMSCSocket extends MulticastSocket {
         this(new InetSocketAddress(port),peerId,manager,id);
     }
 
-
     //TODO
     private String genListSessionHash() {
         return null;
@@ -98,11 +96,11 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private int getMacLenght(){
-        return 0; //TODO
+        return 4; //TODO
     }
 
     private int getHashSize(){
-        return 0; //TODO
+        return this.integrity.hashSize();
     }
 
     /**

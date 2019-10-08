@@ -37,15 +37,15 @@ public class SMCPMessage {
         this.SMCPmsgType = dataStream.readByte();
         Integrity.checkEquality(this.SMCPmsgType, SMCPMSGTYPE);
 
-        this.sAttributes = dataStream.readNBytes(integrity.hashLength());
+        //this.sAttributes = dataStream.readNBytes(integrity.hashLength()); TODO
         integrity.compare_InputHash_hash(endPoint.getAttributes(), sAttributes);
 
         this.sizeOfSecurePayLoad = dataStream.readInt();
-        this.payLoad = new PayLoadClass(dataStream.readNBytes(sizeOfSecurePayLoad));
+        //this.payLoad = new PayLoadClass(dataStream.readNBytes(sizeOfSecurePayLoad)); TODO
 
 
 
-        this.FastSecurePayLoadCheck = dataStream.readAllBytes();
+        //this.FastSecurePayLoadCheck = dataStream.readAllBytes(); TODO
     }
 
 

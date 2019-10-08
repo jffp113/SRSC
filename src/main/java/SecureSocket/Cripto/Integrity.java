@@ -43,4 +43,8 @@ public class Integrity {
         }
     }
 
+    public int hashSize(){
+        return this.hashF.getDigestLength();
+    }
+
 }
