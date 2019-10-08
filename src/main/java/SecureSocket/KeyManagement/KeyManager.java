@@ -1,5 +1,6 @@
 package SecureSocket.KeyManagement;
 
+import SecureSocket.misc.EndPoint;
 import SecureSocket.misc.XMLSecurityProperty;
 
 import javax.crypto.Cipher;
@@ -12,7 +13,6 @@ import java.security.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class KeyManager {
 
@@ -21,40 +21,38 @@ public class KeyManager {
     private static final String KEYSTORE_FILE = "keystore.JCEKS";
     private KeyStore keyStore;
 
-    private Map<String,Properties> propertiesMap;
+    private Map<String,EndPoint> propertiesMap;
 
 
     public KeyManager() throws Exception{
         propertiesMap = new HashMap<>();
-        genKeyStore(XMLSecurityProperty.getPropertiesFrom("smcpendpoints.conf")); //TODO Extract file name
+        genKeyStore(new XMLSecurityProperty("smcpendpoints.conf").getEndPoints()); //TODO Extract file name
     }
 
     public Key getKey(String keyName) throws  Exception{
         return keyStore.getKey(keyName,PASSWORD.toCharArray());
     }
 
-    public Properties getPropertiesFor(String id){
+    public EndPoint getEndPoint(String id){
         return propertiesMap.get(id);
     }
 
-    public boolean genKeyStore(List<Properties> specs) throws Exception {
+    public boolean genKeyStore(List<EndPoint> endPoints) throws Exception {
         File f = new File(KEYSTORE_FILE);
         boolean exists = f.exists();
-        createKeyStore(f,PASSWORD);
+        createKeyStore(f, PASSWORD);
 
         if(!exists){
-            for(Properties prop : specs){
+            for(EndPoint ep : endPoints){
                 //Generate Key for chat
-                propertiesMap.put(prop.getProperty(XMLSecurityProperty.GROUP_ID),prop);
+                propertiesMap.put(ep.getIP_PORT(), ep);
 
-                generateKeyAndStore(prop.getProperty(XMLSecurityProperty.GROUP_ID),
-                        prop.getProperty(XMLSecurityProperty.SEA),
-                        Integer.parseInt(prop.getProperty(XMLSecurityProperty.SEAKS)));
-
-
+                generateKeyAndStore(
+                        ep.getIP_PORT(),
+                        ep.getSEA(),
+                        Integer.parseInt(ep.getSEAKS()));
             }
         }
-
         return true ;
     }
 
@@ -75,7 +73,7 @@ public class KeyManager {
         this.generateKeyAndStore(name,type,null);
     }
 
-    private void generateKeyAndStore(String name,String type,Integer size) throws Exception {
+    private void generateKeyAndStore(String name, String type, Integer size) throws Exception {
         KeyGenerator gen = KeyGenerator.getInstance(type);
 
         if(size != null)
@@ -83,7 +81,7 @@ public class KeyManager {
 
         SecretKey secretKey = gen.generateKey();
 
-        store(name,secretKey);
+        store(name, secretKey);
     }
 
     public IvParameterSpec getIV(Cipher cipher) throws Exception {
@@ -109,8 +107,7 @@ public class KeyManager {
     }
 
     private void store(String name,SecretKey key) throws Exception{
-        KeyStore.SecretKeyEntry keyStoreEntry =
-                new KeyStore.SecretKeyEntry(key);
+        KeyStore.SecretKeyEntry keyStoreEntry = new KeyStore.SecretKeyEntry(key);
         KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(PASSWORD.toCharArray());
         keyStore.setEntry(name, keyStoreEntry, keyPassword);
         keyStore.store(new FileOutputStream(KEYSTORE_FILE), PASSWORD.toCharArray());

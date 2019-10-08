@@ -1,5 +1,7 @@
 package SecureSocket;
 
+import SecureSocket.Cripto.Confidenciality;
+import SecureSocket.Cripto.Integrity;
 import SecureSocket.Exception.SMSCException;
 import SecureSocket.KeyManagement.KeyManager;
 //import sun.text.resources.cldr.pa.FormatData_pa_Arab;
@@ -48,7 +50,7 @@ public class SMSCSocket extends MulticastSocket {
 
         //CIA
         this.confidenciality = new Confidenciality(id,manager);
-        this.integrity = new Integrity(this.manager.getPropertiesFor(id));
+        this.integrity = new Integrity(this.manager.getEndPoint(id).getINTHASH());
 
     }
 
@@ -127,7 +129,7 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private String genIntegrityControl(byte[] messagePayload) {
-        return Base64.getEncoder().encodeToString(integrity.hash(messagePayload)); //TODO
+        return Base64.getEncoder().encodeToString(integrity.makeHash(messagePayload));
     }
 
     private String genRandomNonce() {

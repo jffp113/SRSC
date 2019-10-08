@@ -1,12 +1,12 @@
-package SecureSocket;
+package SecureSocket.Cripto;
 
+import SecureSocket.Handler;
 import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.misc.XMLSecurityProperty;
+import SecureSocket.misc.EndPoint;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
-import java.util.Properties;
 
 public class Confidenciality {
 
@@ -14,14 +14,14 @@ public class Confidenciality {
     private Key key;
     private IvParameterSpec ivSpec;
     private KeyManager keyRing;
-    private Properties prop;
+    private EndPoint ep;
 
     public Confidenciality(String id, KeyManager keyManager) throws Exception {
         keyRing = keyManager;
-        this.prop = keyManager.getPropertiesFor(id);
-        c = Cipher.getInstance(prop.getProperty(XMLSecurityProperty.SEA) + "/"
-                + prop.get(XMLSecurityProperty.MODE) + "/"
-                + prop.getProperty(XMLSecurityProperty.PADDING));
+        this.ep = keyManager.getEndPoint(id);
+        c = Cipher.getInstance(ep.getSEA() + "/"
+                + ep.getMODES() + "/"
+                + ep.getPADDING());
 
         key = keyRing.getKey(id);
         ivSpec = keyRing.getIV(c);
