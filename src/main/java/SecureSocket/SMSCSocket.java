@@ -33,12 +33,14 @@ public class SMSCSocket extends MulticastSocket {
 
     private Map<String, Set<String  >> nouceMap;
 
+    private String id;
+
     //CIA Context
     private KeyManager manager;
     private Confidenciality confidenciality;
     private Integrity integrity;
 
-    public SMSCSocket(SocketAddress bindaddr,String peerId,KeyManager manager,String id) throws Exception {
+    public SMSCSocket(SocketAddress bindaddr,String peerId,KeyManager manager,String group) throws Exception {
         super(bindaddr);
         this.chatsSession = bindaddr.toString();
         listSessionHash = genListSessionHash();
@@ -46,20 +48,20 @@ public class SMSCSocket extends MulticastSocket {
         this.peerId = peerId;
         seqNum = 0;
         nouceMap = new HashMap<>(100);
-
+        id = group.substring(1);
         //CIA
         this.confidenciality = new Confidenciality(id,manager);
         this.integrity = new Integrity(this.manager.getEndPoint(id).getINTHASH());
 
     }
 
-    public SMSCSocket(int port, String peerId,KeyManager manager,String id) throws Exception {
-        this(new InetSocketAddress(port),peerId,manager,id);
+    public SMSCSocket(int port, String peerId,KeyManager manager,String group) throws Exception {
+        this(new InetSocketAddress(port),peerId,manager,group);
     }
 
     //TODO
     private String genListSessionHash() {
-        return null;
+        return "TODO";
     }
 
     @Override
@@ -116,6 +118,7 @@ public class SMSCSocket extends MulticastSocket {
         dataStream.writeUTF(peerId);
         dataStream.write(seqNum++);
         dataStream.writeUTF(genRandomNonce());
+        dataStream.write(p.getLength());
         dataStream.write(p.getData());
         dataStream.writeUTF(genIntegrityControl(p.getData()));
 
@@ -131,7 +134,7 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private String genRandomNonce() {
-        return ""; //TODO;
+        return "TODO"; //TODO;
     }
 
     @Override
@@ -140,9 +143,13 @@ public class SMSCSocket extends MulticastSocket {
         DatagramPacket tmp = new DatagramPacket(bufferTmp,0,bufferTmp.length);
         super.receive(tmp);
 
+        p.setPort(tmp.getPort());
+        p.setAddress(tmp.getAddress());
+
         byte[] buffer = p.getData();
         byte[] payload = deserializeProtocolMessage(tmp);
         System.arraycopy(payload,0,buffer,0,payload.length);
+        System.out.println(new String(buffer,0,payload.length));
         p.setLength(payload.length);
     }
 
@@ -175,8 +182,8 @@ public class SMSCSocket extends MulticastSocket {
         String nouce = dataStream.readUTF();
         verifyUniqueNouce(nouce,seqNum,peerId);
 
-        byte[] message = new byte[dataStream.available() - getHashSize()];
-        dataStream.read(message,0,message.length);
+        byte[] message = new byte[dataStream.read()];
+        dataStream.read(message);
 
         String integretyControl = dataStream.readUTF();
         verifyIfActualEqualsToExpected(genIntegrityControl(message),integretyControl, INTEGRITY_CONTROL_VIOLATED);

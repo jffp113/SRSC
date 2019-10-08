@@ -349,6 +349,7 @@ public class MChatCliente extends JFrame implements MulticastChatEventListener
 		} catch (Throwable e) {
 			System.err.println("Erro ao iniciar a frame: " + e.getClass().getName() 
 							   + ": " + e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		} 
 	} 

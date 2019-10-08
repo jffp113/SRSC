@@ -10,17 +10,11 @@ import java.util.regex.Pattern;
 
 public class XMLSecurityProperty {
 
-    private static final String XML_REGEX = "" +
-            "<(.*)>\\s*\\n*" +
-            "<SID>(.*)<\\/SID>\\s*\\n*" +
-            "<SEA>(.*)<\\/SEA>\\s*\\n*" +
-            "<SEAKS>(.*)<\\/SEAKS>\\s*\\n*" +
-            "<MODE>(.*)<\\/MODE>\\s*\\n*" +
-            "<PADDING>(.*)<\\/P ADDING>\\s*\\n*" +
-            "<INTHASH>(.*)<\\/INTHASH>\\s*\\n*" +
-            "<MAC>(.*)<\\/MAC>\\s*\\n*" +
-            "<MAKKS>(.*)<\\/MAKKS>\\s*\\n*" +
-            "<\\/.*>\\s*\\n*";
+    public static final String XML_REGEX = "<(.*)>\\s*\\n*<SID>(.*)<\\/SID>\\s*\\n*" +
+            "<SEA>(.*)<\\/SEA>\\s*\\n*<SEAKS>(.*)<\\/SEAKS>\\s*" +
+            "\\n*<MODE>(.*)<\\/MODE>\\s*\\n*<PADDING>(.*)" +
+            "<\\/PADDING>\\s*\\n*<INTHASH>(.*)<\\/INTHASH>\\s*\\n*<MAC>(.*)<\\/MAC>\\s*" +
+            "\\n*<MAKKS>(.*)<\\/MAKKS>\\s*\\n*<\\/.*>\\s*\\n*";
 
     private static final int GROUP_ID_POS = 1;
     private static final int SID_POS =      2;

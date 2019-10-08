@@ -1,6 +1,9 @@
 // MulticastChat.java
 // Objecto que representa um chat Multicast
 
+import SecureSocket.KeyManagement.KeyManager;
+import SecureSocket.SMSCSocket;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -52,7 +55,12 @@ public class MulticastChat extends Thread {
     isActive = true;
 
     // create & configure multicast socket
-    msocket = new MulticastSocket(port);
+    try {
+      msocket = new SMSCSocket(port,username,new KeyManager(),group.toString() );
+    } catch (Exception e) {
+      //msocket = new MulticastSocket(port);
+      e.printStackTrace();
+    }
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
     msocket.setTimeToLive(ttl);
     msocket.joinGroup(group);
@@ -218,6 +226,7 @@ public class MulticastChat extends Thread {
       } catch (Throwable e) {
         error("Processing error: " + e.getClass().getName() + ": " 
               + e.getMessage());
+        e.printStackTrace();
       } 
     } 
 

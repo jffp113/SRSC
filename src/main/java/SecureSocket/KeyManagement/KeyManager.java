@@ -6,10 +6,12 @@ import SecureSocket.misc.XMLSecurityProperty;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,17 +44,18 @@ public class KeyManager {
         boolean exists = f.exists();
         createKeyStore(f, PASSWORD);
 
-        if(!exists){
             for(EndPoint ep : endPoints){
                 //Generate Key for chat
                 propertiesMap.put(ep.getIP_PORT(), ep);
 
-                generateKeyAndStore(
-                        ep.getIP_PORT(),
-                        ep.getSEA(),
-                        Integer.parseInt(ep.getSEAKS()));
+                if(!exists) {
+                    generateKeyAndStore(
+                            ep.getIP_PORT(),
+                            ep.getSEA(),
+                            Integer.parseInt(ep.getSEAKS()));
+                }
             }
-        }
+
         return true ;
     }
 
@@ -84,25 +87,37 @@ public class KeyManager {
         store(name, secretKey);
     }
 
-    public IvParameterSpec getIV(Cipher cipher) throws Exception {
-        Key iv;
+    public AlgorithmParameterSpec getIV(Cipher cipher) throws Exception {
+        Key iv = getKey("IV");
+        String alg = cipher.getAlgorithm();
+        AlgorithmParameterSpec parameterSpec;
 
-        try {
-            iv = getKey("IV");
-        } catch (UnrecoverableKeyException e) {
-            return generateIVAndStore(this.keyStore,cipher);
+        if(alg.contains("GCM")){
+            if(iv == null){
+                byte[] ivBytes = generateIVAndStore(cipher);
+                parameterSpec = new GCMParameterSpec(128,ivBytes); //TODO whats TLen
+            }else{
+                parameterSpec = new GCMParameterSpec(128,iv.getEncoded());
+            }
+        }
+        else{
+            //General Case
+            if(iv == null)
+                parameterSpec = new IvParameterSpec(generateIVAndStore(cipher));
+            else
+                parameterSpec = new IvParameterSpec(iv.getEncoded());
         }
 
-        return new IvParameterSpec(iv.getEncoded());
+        return parameterSpec;
     }
 
-    private IvParameterSpec generateIVAndStore(KeyStore store, Cipher cipher) throws Exception{
+    private byte[] generateIVAndStore(Cipher cipher) throws Exception{
         SecureRandom randomSecureRandom = new SecureRandom();
         byte[] iv = new byte[cipher.getBlockSize()];
         randomSecureRandom.nextBytes(iv);
 
         store("IV",new SecretKeySpec(iv, cipher.getAlgorithm()));
-        return new IvParameterSpec(iv);
+        return iv;
 
     }
 

@@ -7,14 +7,16 @@ import SecureSocket.misc.EndPoint;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
+import java.security.spec.AlgorithmParameterSpec;
 
 public class Confidenciality {
 
     private Cipher c;
     private Key key;
-    private IvParameterSpec ivSpec;
+    private AlgorithmParameterSpec ivSpec;
     private KeyManager keyRing;
     private EndPoint ep;
+    private boolean isEncript;
 
     public Confidenciality(String id, KeyManager keyManager) throws Exception {
         keyRing = keyManager;
@@ -25,6 +27,9 @@ public class Confidenciality {
 
         key = keyRing.getKey(id);
         ivSpec = keyRing.getIV(c);
+
+        c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        isEncript = true;
     }
 
     public byte[] handleException(Handler handler){
@@ -38,14 +43,16 @@ public class Confidenciality {
 
     public byte[] encrypt(byte[] input){
         return handleException(()->{
-            c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+            if(!isEncript)
+                c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
             return c.doFinal(input);
         });
     }
 
     public byte[] decrypt(byte [] input){
         return handleException(()->{
-            c.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            if(isEncript)
+                c.init(Cipher.DECRYPT_MODE, key, ivSpec);
             return c.doFinal(input);
         });
     }
