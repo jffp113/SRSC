@@ -8,6 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Base64;
 
 public class Confidenciality {
 
@@ -43,16 +44,22 @@ public class Confidenciality {
 
     public byte[] encrypt(byte[] input){
         return handleException(()->{
-            if(!isEncript)
+            if(!isEncript) {
                 c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+                isEncript = true;
+            }
+
             return c.doFinal(input);
         });
     }
 
     public byte[] decrypt(byte [] input){
         return handleException(()->{
-            if(isEncript)
+            if(isEncript) {
                 c.init(Cipher.DECRYPT_MODE, key, ivSpec);
+                isEncript = false;
+            }
+
             return c.doFinal(input);
         });
     }

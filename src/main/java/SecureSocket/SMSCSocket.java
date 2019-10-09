@@ -90,6 +90,8 @@ public class SMSCSocket extends MulticastSocket {
         dataStream.write(securePayload);
         dataStream.writeUTF(genMac(securePayload));
 
+        System.out.println(new String(Base64.getEncoder().encode(securePayload)));
+
         return byteStream.toByteArray();
     }
 
@@ -149,7 +151,6 @@ public class SMSCSocket extends MulticastSocket {
         byte[] buffer = p.getData();
         byte[] payload = deserializeProtocolMessage(tmp);
         System.arraycopy(payload,0,buffer,0,payload.length);
-        System.out.println(new String(buffer,0,payload.length));
         p.setLength(payload.length);
     }
 
@@ -184,6 +185,7 @@ public class SMSCSocket extends MulticastSocket {
 
         byte[] message = new byte[dataStream.read()];
         dataStream.read(message);
+
 
         String integretyControl = dataStream.readUTF();
         verifyIfActualEqualsToExpected(genIntegrityControl(message),integretyControl, INTEGRITY_CONTROL_VIOLATED);

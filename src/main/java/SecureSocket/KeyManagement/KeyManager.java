@@ -88,7 +88,7 @@ public class KeyManager {
     }
 
     public AlgorithmParameterSpec getIV(Cipher cipher) throws Exception {
-        Key iv = getKey("IV");
+        Key iv = getKey("IV".concat(cipher.getAlgorithm()));
         String alg = cipher.getAlgorithm();
         AlgorithmParameterSpec parameterSpec;
 
@@ -99,6 +99,9 @@ public class KeyManager {
             }else{
                 parameterSpec = new GCMParameterSpec(128,iv.getEncoded());
             }
+        }
+        else if(alg.contains("ECB")){
+            return null;
         }
         else{
             //General Case
@@ -116,7 +119,7 @@ public class KeyManager {
         byte[] iv = new byte[cipher.getBlockSize()];
         randomSecureRandom.nextBytes(iv);
 
-        store("IV",new SecretKeySpec(iv, cipher.getAlgorithm()));
+        store("IV".concat(cipher.getAlgorithm()),new SecretKeySpec(iv, cipher.getAlgorithm()));
         return iv;
 
     }
