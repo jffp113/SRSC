@@ -25,7 +25,6 @@ public class KeyManager {
 
     private Map<String,EndPoint> propertiesMap;
 
-
     public KeyManager() throws Exception{
         propertiesMap = new HashMap<>();
         genKeyStore(new XMLSecurityProperty("smcpendpoints.conf").getEndPoints()); //TODO Extract file name
@@ -95,7 +94,7 @@ public class KeyManager {
         if(alg.contains("GCM")){
             if(iv == null){
                 byte[] ivBytes = generateIVAndStore(cipher);
-                parameterSpec = new GCMParameterSpec(128,ivBytes); //TODO whats TLen
+                parameterSpec = new GCMParameterSpec(128,ivBytes); //TODO whats TLen GCM needs a new IV 
             }else{
                 parameterSpec = new GCMParameterSpec(128,iv.getEncoded());
             }
@@ -130,7 +129,5 @@ public class KeyManager {
         keyStore.setEntry(name, keyStoreEntry, keyPassword);
         keyStore.store(new FileOutputStream(KEYSTORE_FILE), PASSWORD.toCharArray());
     }
-
-
 
 }

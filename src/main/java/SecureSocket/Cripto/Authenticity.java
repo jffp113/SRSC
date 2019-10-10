@@ -7,6 +7,7 @@ import SecureSocket.misc.EndPoint;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Base64;
 
 public class Authenticity {
 
@@ -20,7 +21,6 @@ public class Authenticity {
         keyRing = keyManager;
         ep = keyManager.getEndPoint(id);
         key = keyRing.getKey(id);
-
         hMac = Mac.getInstance(ep.getMAC());
         hMacKey = new SecretKeySpec(key.getEncoded(), ep.getMAC());
     }
@@ -51,6 +51,10 @@ public class Authenticity {
         });
     }
 
+    public int macSize(){
+        return hMac.getMacLength();
+    }
+
     public byte[] checkMAC(byte[] mac) {
         return handleException(()->{
 
@@ -65,7 +69,10 @@ public class Authenticity {
             hMac.init(hMacKey);
             byte[] h = hMac.doFinal(message);
 
-            if(h.equals(messageMac)){
+            String a = new String(Base64.getEncoder().encode(h));
+            String b = new String(Base64.getEncoder().encode(messageMac));
+
+            if(a.equals(b)){
                 //verificado
                 return message; //TODO: É PARA RETURNAR A MENSAGEM?
             }else{

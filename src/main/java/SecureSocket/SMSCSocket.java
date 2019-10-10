@@ -1,5 +1,6 @@
 package SecureSocket;
 
+import SecureSocket.Cripto.Authenticity;
 import SecureSocket.Cripto.Confidenciality;
 import SecureSocket.Cripto.Integrity;
 import SecureSocket.Exception.SMSCException;
@@ -26,6 +27,7 @@ public class SMSCSocket extends MulticastSocket {
     private final String listSessionHash;
 
     private final String chatsSession;
+    private final Authenticity autencity;
 
     private String peerId;
     
@@ -52,6 +54,7 @@ public class SMSCSocket extends MulticastSocket {
         //CIA
         this.confidenciality = new Confidenciality(id,manager);
         this.integrity = new Integrity(this.manager.getEndPoint(id).getINTHASH());
+        this.autencity = new Authenticity(id,manager);
 
     }
 
@@ -86,21 +89,15 @@ public class SMSCSocket extends MulticastSocket {
         dataStream.writeUTF(chatsSession);
         dataStream.writeByte(SMCPmsgType);
         dataStream.writeUTF(listSessionHash);
-        dataStream.write(securePayload.length);
-        dataStream.write(securePayload);
-        dataStream.writeUTF(genMac(securePayload));
-
-        System.out.println(new String(Base64.getEncoder().encode(securePayload)));
+        dataStream.write(securePayload.length + autencity.macSize());
+        dataStream.write(autencity.makeMAC(securePayload));
+        //dataStream.writeUTF(genMac(securePayload));
 
         return byteStream.toByteArray();
     }
 
     private String genMac(byte[] securePayload) {
         return "todo"; //todo
-    }
-
-    private int getMacLenght(){
-        return 4; //TODO
     }
 
     private int getHashSize(){
@@ -136,7 +133,7 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private String genRandomNonce() {
-        return "TODO"; //TODO;
+        return "" + seqNum;
     }
 
     @Override
@@ -168,7 +165,8 @@ public class SMSCSocket extends MulticastSocket {
         byte[] securePayload = new byte[sizeOfSecurePayload];
         dataStream.read(securePayload,0,sizeOfSecurePayload);
 
-        verifyIfActualEqualsToExpected(dataStream.readUTF(),genMac(securePayload), SECURE_PAYLOAD_VIOLATED);
+        securePayload = autencity.checkMAC(securePayload);
+        //verifyIfActualEqualsToExpected(dataStream.readUTF(),genMac(securePayload), SECURE_PAYLOAD_VIOLATED);
 
         return deserializeSecurePayload(securePayload);
     }
@@ -196,7 +194,7 @@ public class SMSCSocket extends MulticastSocket {
         Set<String> nouceAndSeq = this.nouceMap.get(peerId);
         String tmp = nouce + seqNum;
         if(nouceAndSeq == null)
-            nouceAndSeq = new TreeSet<String>();
+            nouceAndSeq = new TreeSet<>();
 
         if(nouceAndSeq.contains(tmp))
             throw new SMSCException("Replaying Detection");

@@ -5,6 +5,8 @@ import SecureSocket.KeyManagement.KeyManager;
 import SecureSocket.misc.EndPoint;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
