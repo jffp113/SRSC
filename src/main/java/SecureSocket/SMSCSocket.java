@@ -1,7 +1,8 @@
 package SecureSocket;
 
-import SecureSocket.Cripto.Confidenciality;
-import SecureSocket.Cripto.Integrity;
+import SecureSocket.Security.Authenticity;
+import SecureSocket.Security.Confidentiality;
+import SecureSocket.Security.Integrity;
 import SecureSocket.Exception.SMSCException;
 import SecureSocket.KeyManagement.KeyManager;
 
@@ -9,8 +10,8 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.SocketAddress;
 import java.util.*;
+import static SecureSocket.Utils.*;
 
 public class SMSCSocket extends MulticastSocket {
 
@@ -36,32 +37,30 @@ public class SMSCSocket extends MulticastSocket {
     private String id;
 
     //CIA Context
-    private KeyManager manager;
-    private Confidenciality confidenciality;
+    private KeyManager keyManager;
+    private Confidentiality confidentiality;
     private Integrity integrity;
+    private final Authenticity autencity;
 
-    public SMSCSocket(SocketAddress bindaddr,String peerId,KeyManager manager,String group) throws Exception {
-        super(bindaddr);
-        this.chatsSession = bindaddr.toString();
-        listSessionHash = genListSessionHash();
-        this.manager = manager;
+
+
+    public SMSCSocket(int port,String peerId,String group) throws Exception {
+        this.chatsSession = new InetSocketAddress(port).toString();
+        this.keyManager = new KeyManager();
         this.peerId = peerId;
         seqNum = 0;
         nouceMap = new HashMap<>(100);
         id = group.substring(1);
         //CIA
-        this.confidenciality = new Confidenciality(id,manager);
-        this.integrity = new Integrity(this.manager.getEndPoint(id).getINTHASH());
+        this.confidentiality = Confidentiality.getInstance(id, keyManager);
+        this.integrity = Integrity.getInstance(this.keyManager.getEndPoint(id).getINTHASH());
+        this.autencity = Authenticity.getInstance(id, keyManager);
+        listSessionHash = genListSessionHash();
 
     }
 
-    public SMSCSocket(int port, String peerId,KeyManager manager,String group) throws Exception {
-        this(new InetSocketAddress(port),peerId,manager,group);
-    }
-
-    //TODO
     private String genListSessionHash() {
-        return "TODO";
+        return base64Encode(integrity.getHash(keyManager.getEndPoint(id).toString().getBytes()));
     }
 
     @Override
@@ -86,25 +85,14 @@ public class SMSCSocket extends MulticastSocket {
         dataStream.writeUTF(chatsSession);
         dataStream.writeByte(SMCPmsgType);
         dataStream.writeUTF(listSessionHash);
-        dataStream.write(securePayload.length);
-        dataStream.write(securePayload);
-        dataStream.writeUTF(genMac(securePayload));
-
-        System.out.println(new String(Base64.getEncoder().encode(securePayload)));
+        dataStream.write(securePayload.length + autencity.macSize());
+        dataStream.write(autencity.makeMAC(securePayload));
 
         return byteStream.toByteArray();
     }
 
     private String genMac(byte[] securePayload) {
         return "todo"; //todo
-    }
-
-    private int getMacLenght(){
-        return 4; //TODO
-    }
-
-    private int getHashSize(){
-        return this.integrity.hashSize();
     }
 
     /**
@@ -119,7 +107,7 @@ public class SMSCSocket extends MulticastSocket {
 
         dataStream.writeUTF(peerId);
         dataStream.write(seqNum++);
-        dataStream.writeUTF(genRandomNonce());
+        dataStream.writeUTF(generateNonce());
         dataStream.write(p.getLength());
         dataStream.write(p.getData());
         dataStream.writeUTF(genIntegrityControl(p.getData()));
@@ -128,15 +116,11 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private byte[] encrypt(byte[] toByteArray) {
-        return confidenciality.encrypt(toByteArray);
+        return confidentiality.encrypt(toByteArray);
     }
 
     private String genIntegrityControl(byte[] messagePayload) {
-        return Base64.getEncoder().encodeToString(integrity.makeHash(messagePayload));
-    }
-
-    private String genRandomNonce() {
-        return "TODO"; //TODO;
+        return base64Encode(integrity.getHash(messagePayload));
     }
 
     @Override
@@ -168,13 +152,13 @@ public class SMSCSocket extends MulticastSocket {
         byte[] securePayload = new byte[sizeOfSecurePayload];
         dataStream.read(securePayload,0,sizeOfSecurePayload);
 
-        verifyIfActualEqualsToExpected(dataStream.readUTF(),genMac(securePayload), SECURE_PAYLOAD_VIOLATED);
+        securePayload = autencity.checkMAC(securePayload);
 
         return deserializeSecurePayload(securePayload);
     }
 
     private byte[] deserializeSecurePayload(byte[] securePayload) throws IOException {
-        byte[] payload = decrypt(securePayload);
+        byte[] payload = confidentiality.decrypt(securePayload);
         ByteArrayInputStream byteStream = new ByteArrayInputStream(payload,0,payload.length);
         DataInputStream dataStream = new DataInputStream(byteStream);
 
@@ -193,15 +177,15 @@ public class SMSCSocket extends MulticastSocket {
     }
 
     private void verifyUniqueNouce(String nouce, int seqNum, String peerId) {
-        Set<String> nouceAndSeq = this.nouceMap.get(peerId);
-        String tmp = nouce + seqNum;
-        if(nouceAndSeq == null)
-            nouceAndSeq = new TreeSet<String>();
+        Set<String> nouceS = this.nouceMap.get(peerId);
 
-        if(nouceAndSeq.contains(tmp))
+        if(nouceS == null)
+            nouceS = new TreeSet<String>();
+
+        if(nouceS.contains(nouce))
             throw new SMSCException("Replaying Detection");
 
-        nouceAndSeq.add(tmp);
+        nouceS.add(nouce);
     }
 
     private <E> void verifyIfActualEqualsToExpected(E actual , E expected, String message){
@@ -210,8 +194,10 @@ public class SMSCSocket extends MulticastSocket {
         }
     }
 
-    private byte[] decrypt(byte[] toByteArray) {
-        return confidenciality.decrypt(toByteArray);
+    private static String generateNonce(){
+        String dateTimeString = Long.toString(new Date().getTime());
+        byte[] nonceByte = dateTimeString.getBytes();
+        return base64Encode(nonceByte);
     }
 
 

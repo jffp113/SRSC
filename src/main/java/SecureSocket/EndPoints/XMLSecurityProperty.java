@@ -1,4 +1,4 @@
-package SecureSocket.misc;
+package SecureSocket.EndPoints;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

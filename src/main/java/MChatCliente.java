@@ -169,7 +169,7 @@ public class MChatCliente extends JFrame implements MulticastChatEventListener
 	
 	// Configuracao do grupo multicast da sessao de chat na interface do cliente
 	public void join(String username, InetAddress group, int port, 
-					 int ttl) throws IOException {
+					 int ttl) throws Exception {
 		setTitle("CHAT MulticastIP " + username + "@" + group.getHostAddress() 
 				 + ":" + port + " [TTL=" + ttl + "]");
 

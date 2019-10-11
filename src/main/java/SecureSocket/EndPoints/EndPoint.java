@@ -1,6 +1,8 @@
-package SecureSocket.misc;
+package SecureSocket.EndPoints;
 
 public class EndPoint {
+
+    private static final String ATTRIBUTES_AS_STRING = "%s%s%s%s%s%s%s%s%s";
 
     private String IP_PORT;
     private String SID;
@@ -60,8 +62,7 @@ public class EndPoint {
         return MAKKS;
     }
 
-    public byte[] getAttributes() {
-        //TODO: MELHORAR
-        return SID.concat(SEA).concat(MODES).concat(PADDING).concat(INTHASH).concat(MAC).concat(MAKKS).getBytes();
+    public String toString() {
+        return String.format(ATTRIBUTES_AS_STRING,IP_PORT,SID,SEA,SEAKS,MODES,PADDING,INTHASH,MAC,MAKKS);
     }
 }

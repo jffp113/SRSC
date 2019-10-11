@@ -1,7 +1,7 @@
 package SecureSocket.KeyManagement;
 
-import SecureSocket.misc.EndPoint;
-import SecureSocket.misc.XMLSecurityProperty;
+import SecureSocket.EndPoints.EndPoint;
+import SecureSocket.EndPoints.XMLSecurityProperty;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -32,6 +32,7 @@ public class KeyManager {
     }
 
     public Key getKey(String keyName) throws  Exception{
+
         return keyStore.getKey(keyName,PASSWORD.toCharArray());
     }
 
@@ -53,6 +54,11 @@ public class KeyManager {
                             ep.getIP_PORT(),
                             ep.getSEA(),
                             Integer.parseInt(ep.getSEAKS()));
+                    generateKeyAndStore(ep.getIP_PORT()+"MAC",
+                            ep.getMAC(),
+                            Integer.parseInt(ep.getMAKKS()));
+
+
                 }
             }
 

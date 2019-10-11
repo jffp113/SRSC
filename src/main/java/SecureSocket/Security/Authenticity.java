@@ -1,14 +1,16 @@
-package SecureSocket.Cripto;
+package SecureSocket.Security;
 
-import SecureSocket.Handler;
 import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.misc.EndPoint;
+import SecureSocket.EndPoints.EndPoint;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Base64;
 
-public class Authenticity {
+public class Authenticity extends AbstractSecurity {
+
+    private static Authenticity sigleton;
 
     private Key key;
     private KeyManager keyRing;
@@ -16,23 +18,16 @@ public class Authenticity {
     private Mac hMac;
     private Key hMacKey;
 
+
     public Authenticity(String id, KeyManager keyManager) throws Exception {
         keyRing = keyManager;
         ep = keyManager.getEndPoint(id);
-        key = keyRing.getKey(id);
+        key = keyRing.getKey(id+"MAC");
 
         hMac = Mac.getInstance(ep.getMAC());
         hMacKey = new SecretKeySpec(key.getEncoded(), ep.getMAC());
     }
 
-    private byte[] handleException(Handler handler){
-        try {
-            return handler.handle();
-        } catch ( Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public byte[] makeMAC(byte[] message) {
         return handleException(()->{
@@ -65,7 +60,11 @@ public class Authenticity {
             hMac.init(hMacKey);
             byte[] h = hMac.doFinal(message);
 
-            if(h.equals(messageMac)){
+
+            String a = new String(Base64.getEncoder().encode(h));
+            String b = new String(Base64.getEncoder().encode(messageMac));
+
+            if(a.equals(b)){
                 //verificado
                 return message; //TODO: É PARA RETURNAR A MENSAGEM?
             }else{
@@ -73,5 +72,17 @@ public class Authenticity {
             }
         });
     }
+
+    public int macSize(){
+        return hMac.getMacLength();
+    }
+
+    public static synchronized Authenticity getInstance(String id, KeyManager keyManager) throws Exception {
+        if(sigleton == null)
+            sigleton = new Authenticity(id,keyManager);
+
+        return sigleton;
+    }
+
 
 }

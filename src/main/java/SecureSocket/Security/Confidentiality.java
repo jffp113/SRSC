@@ -1,16 +1,15 @@
-package SecureSocket.Cripto;
+package SecureSocket.Security;
 
-import SecureSocket.Handler;
 import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.misc.EndPoint;
+import SecureSocket.EndPoints.EndPoint;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Base64;
 
-public class Confidenciality {
+public class Confidentiality extends AbstractSecurity{
+
+    private static Confidentiality sigleton;
 
     private Cipher c;
     private Key key;
@@ -19,7 +18,7 @@ public class Confidenciality {
     private EndPoint ep;
     private boolean isEncript;
 
-    public Confidenciality(String id, KeyManager keyManager) throws Exception {
+    public Confidentiality(String id, KeyManager keyManager) throws Exception {
         keyRing = keyManager;
         this.ep = keyManager.getEndPoint(id);
         c = Cipher.getInstance(ep.getSEA() + "/"
@@ -33,14 +32,6 @@ public class Confidenciality {
         isEncript = true;
     }
 
-    public byte[] handleException(Handler handler){
-        try {
-            return handler.handle();
-        } catch ( Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public byte[] encrypt(byte[] input){
         return handleException(()->{
@@ -62,6 +53,13 @@ public class Confidenciality {
 
             return c.doFinal(input);
         });
+    }
+
+    public static synchronized Confidentiality getInstance(String id, KeyManager keyManager) throws Exception {
+        if(sigleton == null)
+            sigleton = new Confidentiality(id,keyManager);
+
+        return sigleton;
     }
 
 }

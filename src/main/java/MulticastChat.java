@@ -47,7 +47,7 @@ public class MulticastChat extends Thread {
 
   public MulticastChat(String username, InetAddress group, int port, 
                        int ttl, 
-                       MulticastChatEventListener listener) throws IOException {
+                       MulticastChatEventListener listener) throws Exception {
 
     this.username = username;
     this.group = group;
@@ -55,12 +55,9 @@ public class MulticastChat extends Thread {
     isActive = true;
 
     // create & configure multicast socket
-    try {
-      msocket = new SMSCSocket(port,username,new KeyManager(),group.toString() );
-    } catch (Exception e) {
-      //msocket = new MulticastSocket(port);
-      e.printStackTrace();
-    }
+
+    msocket = new SMSCSocket(port,username,group.toString());
+
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
     msocket.setTimeToLive(ttl);
     msocket.joinGroup(group);
