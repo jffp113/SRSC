@@ -2,6 +2,9 @@ package SecureSocket.Security;
 
 import SecureSocket.KeyManagement.KeyManager;
 import SecureSocket.EndPoints.EndPoint;
+import SecureSocket.Security.IV.IVMessageBuilder;
+import SecureSocket.Security.IV.IVPair;
+import javafx.util.Pair;
 
 import javax.crypto.Cipher;
 import java.security.*;
@@ -13,7 +16,7 @@ public class Confidentiality extends AbstractSecurity{
 
     private Cipher c;
     private Key key;
-    private AlgorithmParameterSpec ivSpec;
+    private IVMessageBuilder ivSpec;
     private KeyManager keyRing;
     private EndPoint ep;
     private boolean isEncript;
@@ -26,32 +29,26 @@ public class Confidentiality extends AbstractSecurity{
                 + ep.getPADDING());
 
         key = keyRing.getKey(id);
-        ivSpec = keyRing.getIV(c);
-
-        c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
-        isEncript = true;
     }
 
 
     public byte[] encrypt(byte[] input){
         return handleException(()->{
-            if(!isEncript) {
-                c.init(Cipher.ENCRYPT_MODE, key, ivSpec);
-                isEncript = true;
-            }
+            ivSpec = keyRing.getIV(c);
+            c.init(Cipher.ENCRYPT_MODE, key, ivSpec.getSpec());
+            isEncript = true;
 
-            return c.doFinal(input);
+            return ivSpec.buildMessageWithIV(c.doFinal(input));
         });
     }
 
     public byte[] decrypt(byte [] input){
         return handleException(()->{
-            if(isEncript) {
-                c.init(Cipher.DECRYPT_MODE, key, ivSpec);
-                isEncript = false;
-            }
+            IVPair messageAndIV = ivSpec.unbuildMessageWithIV(input);
+            c.init(Cipher.DECRYPT_MODE, key, messageAndIV.getAlg());
+            isEncript = false;
 
-            return c.doFinal(input);
+            return c.doFinal(messageAndIV.getMessage());
         });
     }
 

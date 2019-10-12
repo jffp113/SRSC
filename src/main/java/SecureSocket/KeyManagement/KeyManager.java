@@ -2,16 +2,18 @@ package SecureSocket.KeyManagement;
 
 import SecureSocket.EndPoints.EndPoint;
 import SecureSocket.EndPoints.XMLSecurityProperty;
+import SecureSocket.Security.IV.IVEmptyBuilder;
+import SecureSocket.Security.IV.IVGCMBuilder;
+import SecureSocket.Security.IV.IVGeneralBuilder;
+import SecureSocket.Security.IV.IVMessageBuilder;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
-import java.security.spec.AlgorithmParameterSpec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +24,11 @@ public class KeyManager {
     private static final String PASSWORD = "Teste";
     private static final String KEYSTORE_FILE = "keystore.JCEKS";
     private KeyStore keyStore;
-
     private Map<String,EndPoint> propertiesMap;
-
 
     public KeyManager() throws Exception{
         propertiesMap = new HashMap<>();
-        genKeyStore(new XMLSecurityProperty("smcpendpoints.conf").getEndPoints()); //TODO Extract file name
+        genKeyStore(new XMLSecurityProperty("smcpendpoints.conf").getEndPoints());
     }
 
     public Key getKey(String keyName) throws  Exception{
@@ -93,39 +93,30 @@ public class KeyManager {
         store(name, secretKey);
     }
 
-    public AlgorithmParameterSpec getIV(Cipher cipher) throws Exception {
-        Key iv = getKey("IV".concat(cipher.getAlgorithm()));
+
+    public IVMessageBuilder getIV(Cipher cipher) throws Exception {
         String alg = cipher.getAlgorithm();
-        AlgorithmParameterSpec parameterSpec;
+        IVMessageBuilder parameterSpec;
 
         if(alg.contains("GCM")){
-            if(iv == null){
-                byte[] ivBytes = generateIVAndStore(cipher);
-                parameterSpec = new GCMParameterSpec(128,ivBytes); //TODO whats TLen
-            }else{
-                parameterSpec = new GCMParameterSpec(128,iv.getEncoded());
-            }
+            parameterSpec = new IVGCMBuilder(new GCMParameterSpec(128,generateIV(cipher))); //TODO whats TLen
         }
         else if(alg.contains("ECB")){
-            return null;
+            return new IVEmptyBuilder();
         }
         else{
-            //General Case
-            if(iv == null)
-                parameterSpec = new IvParameterSpec(generateIVAndStore(cipher));
-            else
-                parameterSpec = new IvParameterSpec(iv.getEncoded());
+            parameterSpec = new IVGeneralBuilder(new IvParameterSpec(generateIV(cipher)));
         }
 
         return parameterSpec;
     }
 
-    private byte[] generateIVAndStore(Cipher cipher) throws Exception{
+    private byte[] generateIV(Cipher cipher){
         SecureRandom randomSecureRandom = new SecureRandom();
         byte[] iv = new byte[cipher.getBlockSize()];
         randomSecureRandom.nextBytes(iv);
 
-        store("IV".concat(cipher.getAlgorithm()),new SecretKeySpec(iv, cipher.getAlgorithm()));
+        //store("IV".concat(cipher.getAlgorithm()),new SecretKeySpec(iv, cipher.getAlgorithm()));
         return iv;
 
     }
