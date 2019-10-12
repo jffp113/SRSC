@@ -8,6 +8,7 @@ import SecureSocket.KeyManagement.KeyManager;
 
 import java.io.*;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.*;
@@ -45,6 +46,7 @@ public class SMSCSocket extends MulticastSocket {
 
 
     public SMSCSocket(int port,String peerId,String group) throws Exception {
+        super(port);
         this.chatsSession = new InetSocketAddress(port).toString();
         this.keyManager = new KeyManager();
         this.peerId = peerId;
@@ -56,7 +58,6 @@ public class SMSCSocket extends MulticastSocket {
         this.integrity = Integrity.getInstance(this.keyManager.getEndPoint(id).getINTHASH());
         this.autencity = Authenticity.getInstance(id, keyManager);
         listSessionHash = genListSessionHash();
-
     }
 
     private String genListSessionHash() {
