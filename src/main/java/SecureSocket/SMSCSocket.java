@@ -47,12 +47,12 @@ public class SMSCSocket extends MulticastSocket {
 
     public SMSCSocket(int port,String peerId,String group) throws Exception {
         super(port);
-        this.chatsSession = new InetSocketAddress(port).toString();
         this.keyManager = new KeyManager();
         this.peerId = peerId;
         seqNum = 0;
         nouceMap = new HashMap<>(100);
         id = group.substring(1);
+        this.chatsSession = id;
         //CIA
         this.confidentiality = Confidentiality.getInstance(id, keyManager);
         this.integrity = Integrity.getInstance(this.keyManager.getEndPoint(id).getINTHASH());
