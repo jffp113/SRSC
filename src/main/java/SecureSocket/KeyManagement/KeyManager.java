@@ -18,7 +18,7 @@ public class KeyManager {
     private Map<String,EndPoint> endPointsMap;
 
     public KeyManager() throws Exception{
-        endPointsMap = XMLSecurityProperty.getEndPoints("smcpendpoints.conf");
+        endPointsMap = XMLSecurityProperty.getEndPoints("SMCP.conf");
         genKeyStore(endPointsMap.values());
     }
 
