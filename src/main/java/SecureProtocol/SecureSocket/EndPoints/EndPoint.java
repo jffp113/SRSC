@@ -1,4 +1,4 @@
-package SecureSocket.EndPoints;
+package SecureProtocol.SecureSocket.EndPoints;
 
 public class EndPoint {
 

@@ -1,4 +1,4 @@
-package SecureSocket;
+package SecureProtocol.SecureSocket;
 
 public interface Handler {
 

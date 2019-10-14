@@ -1,6 +1,6 @@
-package SecureSocket.Security;
+package SecureProtocol.SecureSocket.Security;
 
-import SecureSocket.Handler;
+import SecureProtocol.SecureSocket.Handler;
 
 public class AbstractSecurity {
 

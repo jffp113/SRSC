@@ -1,6 +1,6 @@
-package SecureSocket.Security;
+package SecureProtocol.SecureSocket.Security;
 
-import SecureSocket.Security.IV.*;
+import SecureProtocol.SecureSocket.Security.IV.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;

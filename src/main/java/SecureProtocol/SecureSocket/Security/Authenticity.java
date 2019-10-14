@@ -1,7 +1,4 @@
-package SecureSocket.Security;
-
-import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.EndPoints.EndPoint;
+package SecureProtocol.SecureSocket.Security;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

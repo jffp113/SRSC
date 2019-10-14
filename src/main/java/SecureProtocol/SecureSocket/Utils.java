@@ -1,4 +1,4 @@
-package SecureSocket;
+package SecureProtocol.SecureSocket;
 
 import java.util.Base64;
 

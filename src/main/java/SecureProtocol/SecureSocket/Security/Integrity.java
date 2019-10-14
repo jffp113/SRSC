@@ -1,4 +1,4 @@
-package SecureSocket.Security;
+package SecureProtocol.SecureSocket.Security;
 
 import java.security.MessageDigest;
 

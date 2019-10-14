@@ -1,7 +1,7 @@
-package SecureSocket.KeyManagement;
+package SecureProtocol.SecureSocket.KeyManagement;
 
-import SecureSocket.EndPoints.EndPoint;
-import SecureSocket.EndPoints.XMLSecurityProperty;
+import SecureProtocol.SecureSocket.EndPoints.EndPoint;
+import SecureProtocol.SecureSocket.EndPoints.XMLSecurityProperty;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;

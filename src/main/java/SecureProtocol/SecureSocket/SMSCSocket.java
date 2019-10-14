@@ -1,18 +1,18 @@
-package SecureSocket;
+package SecureProtocol.SecureSocket;
 
-import SecureSocket.EndPoints.EndPoint;
-import SecureSocket.Security.Authenticity;
-import SecureSocket.Security.Confidentiality;
-import SecureSocket.Security.Integrity;
-import SecureSocket.Exception.SMSCException;
-import SecureSocket.KeyManagement.KeyManager;
+import SecureProtocol.SecureSocket.EndPoints.EndPoint;
+import SecureProtocol.SecureSocket.Security.Authenticity;
+import SecureProtocol.SecureSocket.Security.Confidentiality;
+import SecureProtocol.SecureSocket.Security.Integrity;
+import SecureProtocol.SecureSocket.Exception.SMSCException;
+import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.security.Key;
 import java.util.*;
-import static SecureSocket.Utils.*;
+import static SecureProtocol.SecureSocket.Utils.*;
 
 public class SMSCSocket extends MulticastSocket {
 

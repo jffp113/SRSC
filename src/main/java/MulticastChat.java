@@ -1,12 +1,10 @@
 // MulticastChat.java
 // Objecto que representa um chat Multicast
 
-import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.SMSCSocket;
+import SecureProtocol.SecureSocket.SMSCSocket;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class MulticastChat extends Thread {
 
