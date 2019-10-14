@@ -1,10 +1,8 @@
 package SecureSocket.Security.IV;
 
-import javafx.util.Pair;
 
 import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
-import java.security.spec.AlgorithmParameterSpec;
 
 public class IVGeneralBuilder extends IvParameterSpec implements IVMessageBuilder {
 

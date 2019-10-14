@@ -1,7 +1,5 @@
 package SecureSocket.Security.IV;
 
-import javafx.util.Pair;
-
 import java.security.spec.AlgorithmParameterSpec;
 
 public interface IVMessageBuilder extends AlgorithmParameterSpec {

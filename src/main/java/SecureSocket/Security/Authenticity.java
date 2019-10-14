@@ -6,30 +6,25 @@ import SecureSocket.EndPoints.EndPoint;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class Authenticity extends AbstractSecurity {
 
-    private static Authenticity sigleton;
-
-    private Key key;
-    private KeyManager keyRing;
-    private EndPoint ep;
     private Mac hMac;
     private Key hMacKey;
 
-
-    public Authenticity(String id, KeyManager keyManager) throws Exception {
-        keyRing = keyManager;
-        ep = keyManager.getEndPoint(id);
-        key = keyRing.getKey(id+"MAC");
-
-        hMac = Mac.getInstance(ep.getMAC());
-        hMacKey = new SecretKeySpec(key.getEncoded(), ep.getMAC());
+    public Authenticity(String mac, Key key) {
+        try {
+            hMac = Mac.getInstance(mac);
+            hMacKey = new SecretKeySpec(key.getEncoded(), mac);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
 
-    public byte[] makeMAC(byte[] message) {
+    public byte[] generateMac(byte[] message) {
         return handleException(()->{
             byte[] mac = new byte[message.length + hMac.getMacLength()];
 
@@ -46,7 +41,7 @@ public class Authenticity extends AbstractSecurity {
         });
     }
 
-    public byte[] checkMAC(byte[] mac) {
+    public byte[] verifyMac(byte[] mac) {
         return handleException(()->{
 
             int messageLength = mac.length - hMac.getMacLength();
@@ -73,16 +68,8 @@ public class Authenticity extends AbstractSecurity {
         });
     }
 
-    public int macSize(){
+    public int getMacSize(){
         return hMac.getMacLength();
     }
-
-    public static synchronized Authenticity getInstance(String id, KeyManager keyManager) throws Exception {
-        if(sigleton == null)
-            sigleton = new Authenticity(id,keyManager);
-
-        return sigleton;
-    }
-
 
 }

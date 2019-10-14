@@ -16,55 +16,42 @@ public class XMLSecurityProperty {
             "<\\/PADDING>\\s*\\n*<INTHASH>(.*)<\\/INTHASH>\\s*\\n*<MAC>(.*)<\\/MAC>\\s*" +
             "\\n*<MAKKS>(.*)<\\/MAKKS>\\s*\\n*<\\/.*>\\s*\\n*";
 
-    private static final int GROUP_ID_POS = 1;
-    private static final int SID_POS =      2;
-    private static final int SEA_POS =      3;
-    private static final int SEAKS_POS =    4;
-    private static final int MODE_POS =     5;
-    private static final int PADDING_POS =  6;
-    private static final int INTHASH_POS =  7;
-    private static final int MAC_POS =      8;
-    private static final int MAKKS_POS =    9;
-
-    public static final String GROUP_ID =   "GROUP_ID";
-    public static final String SID =        "SID";
-    public static final String SEA =        "SEA";
-    public static final String SEAKS =      "SEAKS";
-    public static final String MODE =       "MODE";
-    public static final String PADDING =    "PADDING";
-    public static final String INTHASH =    "INTHASH";
-    public static final String MAC =        "MAC";
-    public static final String MAKKS =      "MAKKS";
+    private static final int MULTICAST_GROUP_POS =  1;
+    private static final int SID_POS =              2;
+    private static final int SEA_POS =              3;
+    private static final int SEAKS_POS =            4;
+    private static final int MODE_POS =             5;
+    private static final int PADDING_POS =          6;
+    private static final int INTHASH_POS =          7;
+    private static final int MAC_POS =              8;
+    private static final int MAKKS_POS =            9;
 
     private static Pattern regexp = Pattern.compile(XML_REGEX);
 
-    private List<EndPoint> propMap = new LinkedList<>();
-
-    public XMLSecurityProperty(String fileName) throws IOException {
+    public static Map<String, EndPoint> getEndPoints(String fileName) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(fileName));
         String fileString = new String(encoded, StandardCharsets.UTF_8);
 
         Matcher m  = regexp.matcher(fileString);
 
+        Map<String, EndPoint> endPointsMap = new HashMap();
+
         while(m.find()) {
-            String id = m.group(GROUP_ID_POS);
-            EndPoint endPoint = new EndPoint(
-                    id,
+            String multicastGroupXML = m.group(MULTICAST_GROUP_POS);
+            EndPoint endPoint =  new EndPoint(
+                    multicastGroupXML,
                     m.group(SID_POS),
                     m.group(SEA_POS),
-                    m.group(SEAKS_POS),
+                    Integer.parseInt(m.group(SEAKS_POS)),
                     m.group(MODE_POS),
                     m.group(PADDING_POS),
                     m.group(INTHASH_POS),
                     m.group(MAC_POS),
-                    m.group(MAKKS_POS)
+                    Integer.parseInt(m.group(MAKKS_POS))
             );
-            propMap.add(endPoint);
+            endPointsMap.put(multicastGroupXML, endPoint);
         }
-    }
-
-    public List<EndPoint> getEndPoints() throws IOException {
-        return this.propMap;
+        return endPointsMap;
     }
 
 }

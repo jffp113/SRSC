@@ -1,42 +1,30 @@
 package SecureSocket.Security;
 
-import SecureSocket.KeyManagement.KeyManager;
-import SecureSocket.EndPoints.EndPoint;
-import SecureSocket.Security.IV.IVMessageBuilder;
-import SecureSocket.Security.IV.IVPair;
-import javafx.util.Pair;
+import SecureSocket.Security.IV.*;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
-import java.security.spec.AlgorithmParameterSpec;
 
 public class Confidentiality extends AbstractSecurity{
-
-    private static Confidentiality sigleton;
 
     private Cipher c;
     private Key key;
     private IVMessageBuilder ivSpec;
-    private KeyManager keyRing;
-    private EndPoint ep;
-    private boolean isEncript;
 
-    public Confidentiality(String id, KeyManager keyManager) throws Exception {
-        keyRing = keyManager;
-        this.ep = keyManager.getEndPoint(id);
-        c = Cipher.getInstance(ep.getSEA() + "/"
-                + ep.getMODES() + "/"
-                + ep.getPADDING());
+    private String mode;
 
-        key = keyRing.getKey(id);
+    public Confidentiality(String sea, String mode, String padding, Key key) throws Exception {
+        this.mode = mode;
+        c = Cipher.getInstance(sea + "/" + mode + "/" + padding);
+        this.key = key;
     }
-
 
     public byte[] encrypt(byte[] input){
         return handleException(()->{
-            ivSpec = keyRing.getIV(c);
+            ivSpec = getIV(mode, c.getBlockSize());
             c.init(Cipher.ENCRYPT_MODE, key, ivSpec.getSpec());
-            isEncript = true;
 
             return ivSpec.buildMessageWithIV(c.doFinal(input));
         });
@@ -46,17 +34,28 @@ public class Confidentiality extends AbstractSecurity{
         return handleException(()->{
             IVPair messageAndIV = ivSpec.unbuildMessageWithIV(input);
             c.init(Cipher.DECRYPT_MODE, key, messageAndIV.getAlg());
-            isEncript = false;
-
             return c.doFinal(messageAndIV.getMessage());
         });
     }
 
-    public static synchronized Confidentiality getInstance(String id, KeyManager keyManager) throws Exception {
-        if(sigleton == null)
-            sigleton = new Confidentiality(id,keyManager);
+    public IVMessageBuilder getIV(String mode, int blockSize) {
+        IVMessageBuilder parameterSpec;
 
-        return sigleton;
+        if(mode.equalsIgnoreCase("GCM"))
+            parameterSpec = new IVGCMBuilder(new GCMParameterSpec(128,generateIV(blockSize))); //TODO whats TLen
+        else if(mode.equalsIgnoreCase("ECB"))
+            return new IVEmptyBuilder();
+        else
+            parameterSpec = new IVGeneralBuilder(new IvParameterSpec(generateIV(blockSize)));
+        return parameterSpec;
     }
+
+    private byte[] generateIV(int blockSize){
+        SecureRandom randomSecureRandom = new SecureRandom();
+        byte[] iv = new byte[blockSize];
+        randomSecureRandom.nextBytes(iv);
+        return iv;
+    }
+
 
 }

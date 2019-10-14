@@ -2,67 +2,76 @@ package SecureSocket.EndPoints;
 
 public class EndPoint {
 
-    private static final String ATTRIBUTES_AS_STRING = "%s%s%s%s%s%s%s%s%s";
+    private static final String ATTRIBUTES_AS_STRING = "" +
+            "%s" + //multicastGroup
+            "%s" + //sid
+            "%s" + //sea
+            "%s" + //seaks
+            "%s" + //mode
+            "%s" + //padding
+            "%s" + //inthash
+            "%s" + //mac
+            "%s";  //makks
 
-    private String IP_PORT;
-    private String SID;
-    private String SEA;
-    private String SEAKS;
-    private String MODES;
-    private String PADDING;
-    private String INTHASH;
-    private String MAC;
-    private String MAKKS;
+    private String multicastGroup;
+    private String sid;
+    private String sea;
+    private int seaks;
+    private String mode;
+    private String padding;
+    private String inthash;
+    private String mac;
+    private int makks;
 
-    public EndPoint(String IP_PORT, String SID, String SEA, String SEAKS, String MODES, String PADDING, String INTHASH, String MAC, String MAKKS) {
-        this.IP_PORT = IP_PORT;
-        this.SID = SID;
-        this.SEA = SEA;
-        this.SEAKS = SEAKS;
-        this.MODES = MODES;
-        this.PADDING = PADDING;
-        this.INTHASH = INTHASH;
-        this.MAC = MAC;
-        this.MAKKS = MAKKS;
+    public EndPoint(String IP_PORT, String SID, String SEA, int SEAKS, String MODES, String PADDING, String INTHASH, String MAC, int MAKKS) {
+        this.multicastGroup = IP_PORT;
+        this.sid = SID;
+        this.sea = SEA;
+        this.seaks = SEAKS;
+        this.mode = MODES;
+        this.padding = PADDING;
+        this.inthash = INTHASH;
+        this.mac = MAC;
+        this.makks = MAKKS;
     }
 
-    public String getIP_PORT() {
-        return IP_PORT;
+    public String getMulticastGroup() {
+        return multicastGroup;
     }
 
-    public String getSID() {
-        return SID;
+    public String getSid() {
+        return sid;
     }
 
-    public String getSEA() {
-        return SEA;
+    public String getSea() {
+        return sea;
     }
 
-    public String getSEAKS() {
-        return SEAKS;
+    public int getSeaks() {
+        return seaks;
     }
 
-    public String getMODES() {
-        return MODES;
+    public String getMode() {
+        return mode;
     }
 
-    public String getPADDING() {
-        return PADDING;
+    public String getPadding() {
+        return padding;
     }
 
-    public String getINTHASH() {
-        return INTHASH;
+    public String getInthash() {
+        return inthash;
     }
 
-    public String getMAC() {
-        return MAC;
+    public String getMac() {
+        return mac;
     }
 
-    public String getMAKKS() {
-        return MAKKS;
+    public int getMakks() {
+        return makks;
     }
 
-    public String toString() {
-        return String.format(ATTRIBUTES_AS_STRING,IP_PORT,SID,SEA,SEAKS,MODES,PADDING,INTHASH,MAC,MAKKS);
+    public byte[] getByteArray() {
+        return String.format(ATTRIBUTES_AS_STRING, multicastGroup, sid, sea, seaks, mode, padding, inthash, mac, makks).getBytes();
     }
 }

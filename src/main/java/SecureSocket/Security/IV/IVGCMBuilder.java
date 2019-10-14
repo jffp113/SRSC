@@ -1,10 +1,7 @@
 package SecureSocket.Security.IV;
 
-import javafx.util.Pair;
-
 import javax.crypto.spec.GCMParameterSpec;
 import java.io.*;
-import java.security.spec.AlgorithmParameterSpec;
 
 public class IVGCMBuilder extends GCMParameterSpec implements IVMessageBuilder {
 

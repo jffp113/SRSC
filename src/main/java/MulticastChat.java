@@ -56,7 +56,7 @@ public class MulticastChat extends Thread {
 
     // create & configure multicast socket
 
-    msocket = new SMSCSocket(port,username,group.toString());
+    msocket = new SMSCSocket(username, group.toString(), port);
 
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
     msocket.setTimeToLive(ttl);
