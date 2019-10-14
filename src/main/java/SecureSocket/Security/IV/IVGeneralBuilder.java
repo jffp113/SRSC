@@ -1,12 +1,11 @@
 package SecureSocket.Security.IV;
 
-
 import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 
 public class IVGeneralBuilder extends IvParameterSpec implements IVMessageBuilder {
 
-   private IvParameterSpec spec;
+    private IvParameterSpec spec;
 
     public IVGeneralBuilder(IvParameterSpec spec) {
         super(spec.getIV());
@@ -41,8 +40,6 @@ public class IVGeneralBuilder extends IvParameterSpec implements IVMessageBuilde
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         return new IVPair(new IvParameterSpec(iv),messageE);
     }
 

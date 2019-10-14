@@ -41,6 +41,7 @@ public class Authenticity extends AbstractSecurity {
         });
     }
 
+    ////TODO: TIRAR ESTE METODO E VERIFICAR SÓ COM O GETHASH
     public byte[] verifyMac(byte[] mac) {
         return handleException(()->{
 
@@ -61,7 +62,7 @@ public class Authenticity extends AbstractSecurity {
 
             if(a.equals(b)){
                 //verificado
-                return message; //TODO: É PARA RETURNAR A MENSAGEM?
+                return message;
             }else{
                 throw new Exception();
             }
