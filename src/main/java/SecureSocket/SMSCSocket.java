@@ -8,8 +8,6 @@ import SecureSocket.KeyManagement.KeyManager;
 
 import java.io.*;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.*;
 import static SecureSocket.Utils.*;
@@ -51,7 +49,7 @@ public class SMSCSocket extends MulticastSocket {
         this.peerId = peerId;
         seqNum = 0;
         nouceMap = new HashMap<>(100);
-        id = group.substring(1);
+        id = group.substring(1)+":"+port;
         this.chatsSession = id;
         //CIA
         this.confidentiality = Confidentiality.getInstance(id, keyManager);
