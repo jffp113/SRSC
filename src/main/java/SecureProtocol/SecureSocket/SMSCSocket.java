@@ -12,7 +12,7 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.security.Key;
 import java.util.*;
-import static SecureProtocol.SecureSocket.Utils.*;
+import static SecureProtocol.Utils.*;
 
 public class SMSCSocket extends MulticastSocket {
 
