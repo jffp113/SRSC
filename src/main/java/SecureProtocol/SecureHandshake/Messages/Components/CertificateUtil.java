@@ -1,7 +1,5 @@
 package SecureProtocol.SecureHandshake.Messages.Components;
 
-import sun.security.x509.X509CertImpl;
-
 import java.io.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;

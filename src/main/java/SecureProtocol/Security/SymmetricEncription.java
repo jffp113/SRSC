@@ -7,7 +7,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.*;
 
-public class Confidentiality extends AbstractSecurity{
+public class SymmetricEncription extends AbstractSecurity{
 
     private Cipher c;
     private Key key;
@@ -15,7 +15,7 @@ public class Confidentiality extends AbstractSecurity{
 
     private String mode;
 
-    public Confidentiality(String sea, String mode, String padding, Key key) throws Exception {
+    public SymmetricEncription(String sea, String mode, String padding, Key key) throws Exception {
         this.mode = mode;
         c = Cipher.getInstance(sea + "/" + mode + "/" + padding);
         this.key = key;

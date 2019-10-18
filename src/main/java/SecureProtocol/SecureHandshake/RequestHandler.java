@@ -32,9 +32,9 @@ public class RequestHandler implements Runnable{
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
             X509Certificate certificate = (X509Certificate)clientRequest.certificate();
             certificate.checkValidity();
-
         } catch (NotAuthorizedException e){
             //Generate a Not Authorized response TODO
+            SAAHPHeader.createNewResponseHeader(SAAHPCode.REJECTED, HANDLER_PROTOCOL_VERSION);
         } catch (Exception e) {
             //Generate a Internal Error Exception TODO
             SAAHPHeader.createNewResponseHeader(SAAHPCode.INTERNAL_ERROR,HANDLER_PROTOCOL_VERSION);

@@ -2,7 +2,7 @@ package SecureProtocol.SecureSocket;
 
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.Security.Authenticity;
-import SecureProtocol.Security.Confidentiality;
+import SecureProtocol.Security.SymmetricEncription;
 import SecureProtocol.Security.Integrity;
 import SecureProtocol.SecureSocket.Exception.SMSCException;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
@@ -33,7 +33,7 @@ public class SMSCSocket extends MulticastSocket {
     private Map<String, Set<String  >> nouceMap;
 
     private KeyManager keyManager;
-    private Confidentiality confidentiality;
+    private SymmetricEncription confidentiality;
     private Integrity integrity;
     private final Authenticity authenticity;
 
@@ -49,7 +49,7 @@ public class SMSCSocket extends MulticastSocket {
         Key key = keyManager.getKey(sid);
 
         //CIA
-        this.confidentiality = new Confidentiality(endpoint.getSea(), endpoint.getMode(), endpoint.getPadding(), key);
+        this.confidentiality = new SymmetricEncription(endpoint.getSea(), endpoint.getMode(), endpoint.getPadding(), key);
         this.integrity = new Integrity(endpoint.getInthash());
         this.authenticity = new Authenticity(endpoint.getMac(), key);
 

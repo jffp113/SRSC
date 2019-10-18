@@ -33,7 +33,7 @@ public class SAAHPRequest {
         signer = Signer.getInstace();
     }
 
-    public void sendRequestToOutputStream(DataOutputStream out) throws IOException {
+    public void sendRequestToOutputStream(DataOutputStream out) throws Exception {
         String headerAsString = header.serializeToString();
         signatureBase64 = signer.doSign(headerAsString+permCertificate);
         out.writeUTF(headerAsString);
@@ -47,8 +47,7 @@ public class SAAHPRequest {
         String headerString = in.readUTF();
         in.readUTF();
         request.header = SAAHPHeader.parseHeader(headerString);
-        byte[] payload = new byte[
-                Integer.parseInt(request.header.getProperty(SAAHPProperties.CONTENT_LENGTH.toString()))];
+        byte[] payload = new byte[Integer.parseInt(request.header.getProperty(SAAHPProperties.CONTENT_LENGTH.toString()))];
         in.read(payload);
         genObjectsFromPayload(request,payload);
         return request;
@@ -73,8 +72,9 @@ public class SAAHPRequest {
         return Base64.decode(this.signatureBase64);
     }
 
-    public void verifySignatureAndThrowException() throws NotAuthorizedException {
-        if(!signer.verifySignature(certificate().getPublicKey()))
+    public void verifySignatureAndThrowException() throws Exception {
+        String message = header.serializeToString() + permCertificate;
+        if(!signer.verifySignature(message, signatureBase64, certificate().getPublicKey()))
             throw new NotAuthorizedException("");
     }
 

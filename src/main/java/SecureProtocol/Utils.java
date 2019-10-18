@@ -5,6 +5,10 @@ import java.util.Base64;
 public class Utils {
 
     public static String base64Encode(byte[] input) {
-       return Base64.getEncoder().encodeToString(input);
+        return Base64.getEncoder().encodeToString(input);
+    }
+
+    public static byte[] base64Decode(String input) {
+        return Base64.getDecoder().decode(input);
     }
 }

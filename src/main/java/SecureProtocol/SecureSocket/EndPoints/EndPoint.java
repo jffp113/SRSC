@@ -23,16 +23,16 @@ public class EndPoint {
     private String mac;
     private int makks;
 
-    public EndPoint(String IP_PORT, String SID, String SEA, int SEAKS, String MODES, String PADDING, String INTHASH, String MAC, int MAKKS) {
-        this.multicastGroup = IP_PORT;
-        this.sid = SID;
-        this.sea = SEA;
-        this.seaks = SEAKS;
-        this.mode = MODES;
-        this.padding = PADDING;
-        this.inthash = INTHASH;
-        this.mac = MAC;
-        this.makks = MAKKS;
+    public EndPoint(String multicastGroup, String sid, String sea, int seaks, String mode, String padding, String inthash, String mac, int makks) {
+        this.multicastGroup = multicastGroup;
+        this.sid = sid;
+        this.sea = sea;
+        this.seaks = seaks;
+        this.mode = mode;
+        this.padding = padding;
+        this.inthash = inthash;
+        this.mac = mac;
+        this.makks = makks;
     }
 
     public String getMulticastGroup() {
