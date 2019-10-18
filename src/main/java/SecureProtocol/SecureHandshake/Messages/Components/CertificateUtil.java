@@ -19,7 +19,7 @@ public class CertificateUtil {
 
     private static Certificate personalCertificate = loadCertificate();
     private static PrivateKey privateKey = loadPersonalPrivateKey();
-    
+
     private static Certificate loadCertificate(){
         try {
             return certificatesFromFile(PERM_CERTIFICATE_FILE);

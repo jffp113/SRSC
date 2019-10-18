@@ -1,5 +1,6 @@
 package SecureProtocol.SecureHandshake.Messages;
 
+import SecureProtocol.SecureHandshake.Exception.NotAuthorizedException;
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPProperties;
@@ -11,7 +12,6 @@ import java.security.cert.Certificate;
 
 public class SAAHPRequest {
     private SAAHPHeader header;
-    private byte[] payload;
 
     private Certificate cert;
     private String signatureBase64;
@@ -42,21 +42,26 @@ public class SAAHPRequest {
         out.writeUTF(signatureBase64);
     }
 
-    public static SAAHPRequest getRequestFromInputStream(DataInputStream in) throws IOException {
+    public static SAAHPRequest getRequestFromInputStream(DataInputStream in) throws Exception {
         SAAHPRequest request = new SAAHPRequest();
         String headerString = in.readUTF();
         in.readUTF();
         request.header = SAAHPHeader.parseHeader(headerString);
-        request.payload = new byte[
+        byte[] payload = new byte[
                 Integer.parseInt(request.header.getProperty(SAAHPProperties.CONTENT_LENGTH.toString()))];
-        in.read(request.payload);
-
+        in.read(payload);
+        genObjectsFromPayload(request,payload);
         return request;
+    }
+    private static void genObjectsFromPayload(SAAHPRequest request,byte[] payload) throws Exception {
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(payload,0,payload.length);
+        DataInputStream dataStream = new DataInputStream(byteStream);
+        request.permCertificate = dataStream.readUTF();
+        request.signatureBase64 = dataStream.readUTF();
+        request.cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(request.permCertificate.getBytes()));
     }
 
     public Certificate getCert() throws Exception {
-        if(cert == null)
-            genObjectsFromPayload();
         return cert;
     }
 
@@ -65,22 +70,15 @@ public class SAAHPRequest {
     }
 
     public byte[] getSignature() throws Exception {
-        if(signatureBase64 == null)
-            genObjectsFromPayload();
         return Base64.decode(this.signatureBase64);
     }
 
-    public Certificate certificate() throws Exception{
-        if(cert == null)
-            genObjectsFromPayload();
-        return cert;
+    public void verifySignatureAndThrowException() throws NotAuthorizedException {
+        if(!signer.verifySignature(certificate().getPublicKey()))
+            throw new NotAuthorizedException("");
     }
 
-    private void genObjectsFromPayload() throws Exception {
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(payload,0,payload.length);
-        DataInputStream dataStream = new DataInputStream(byteStream);
-        permCertificate = dataStream.readUTF();
-        signatureBase64 = dataStream.readUTF();
-        cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(permCertificate.getBytes()));
+    public Certificate certificate(){
+        return cert;
     }
 }

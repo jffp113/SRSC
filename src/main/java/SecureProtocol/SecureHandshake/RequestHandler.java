@@ -1,5 +1,6 @@
 package SecureProtocol.SecureHandshake;
 
+import SecureProtocol.SecureHandshake.Exception.NotAuthorizedException;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPCode;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.Messages.SAAHPRequest;
@@ -29,10 +30,11 @@ public class RequestHandler implements Runnable{
         final SAAHPRequest clientRequest;
         try {
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
-
             X509Certificate certificate = (X509Certificate)clientRequest.certificate();
             certificate.checkValidity();
 
+        } catch (NotAuthorizedException e){
+            //Generate a Not Authorized response TODO
         } catch (Exception e) {
             //Generate a Internal Error Exception TODO
             SAAHPHeader.createNewResponseHeader(SAAHPCode.INTERNAL_ERROR,HANDLER_PROTOCOL_VERSION);
