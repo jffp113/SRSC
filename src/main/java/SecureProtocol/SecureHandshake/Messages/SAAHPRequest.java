@@ -1,7 +1,7 @@
 package SecureProtocol.SecureHandshake.Messages;
 
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
-import SecureProtocol.SecureHandshake.Messages.Components.SAAHHeader;
+import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPProperties;
 import SecureProtocol.Security.Signer;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
@@ -10,7 +10,7 @@ import java.security.cert.Certificate;
 
 
 public class SAAHPRequest {
-    private SAAHHeader header;
+    private SAAHPHeader header;
     private byte[] payload;
 
     private Certificate cert;
@@ -25,7 +25,7 @@ public class SAAHPRequest {
         signer = Signer.getInstace();
     }
 
-    public SAAHPRequest(Certificate cert,SAAHHeader header) throws Exception {
+    public SAAHPRequest(Certificate cert, SAAHPHeader header) throws Exception {
         this.header = header;
         this.cert = cert;
         signatureBase64 = null;
@@ -46,7 +46,7 @@ public class SAAHPRequest {
         SAAHPRequest request = new SAAHPRequest();
         String headerString = in.readUTF();
         in.readUTF();
-        request.header = SAAHHeader.parseHeader(headerString);
+        request.header = SAAHPHeader.parseHeader(headerString);
         request.payload = new byte[
                 Integer.parseInt(request.header.getProperty(SAAHPProperties.CONTENT_LENGTH.toString()))];
         in.read(request.payload);
@@ -60,7 +60,7 @@ public class SAAHPRequest {
         return cert;
     }
 
-    public SAAHHeader getHeader() {
+    public SAAHPHeader getHeader() {
         return header;
     }
 
@@ -81,6 +81,6 @@ public class SAAHPRequest {
         DataInputStream dataStream = new DataInputStream(byteStream);
         permCertificate = dataStream.readUTF();
         signatureBase64 = dataStream.readUTF();
-        cert = CertificateUtil.parseCertificates(new ByteArrayInputStream(permCertificate.getBytes()));
+        cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(permCertificate.getBytes()));
     }
 }

@@ -42,7 +42,7 @@ public class Confidentiality extends AbstractSecurity{
         IVMessageBuilder parameterSpec;
 
         if(mode.equalsIgnoreCase("GCM"))
-            parameterSpec = new IVGCMBuilder(new GCMParameterSpec(128,generateIV(blockSize))); //TODO whats TLen
+            parameterSpec = new IVGCMBuilder(new GCMParameterSpec(128,generateIV(blockSize)));
         else if(mode.equalsIgnoreCase("ECB"))
             return new IVEmptyBuilder();
         else
