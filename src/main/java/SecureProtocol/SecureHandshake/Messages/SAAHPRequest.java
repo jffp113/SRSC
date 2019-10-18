@@ -52,7 +52,6 @@ public class SAAHPRequest {
     public Certificate getCert() throws Exception {
         if(cert == null)
             genObjectsFromPayload();
-
         return cert;
     }
 
@@ -63,14 +62,12 @@ public class SAAHPRequest {
     public byte[] getSignature() throws Exception {
         if(signatureBase64 == null)
             genObjectsFromPayload();
-
         return Base64.decode(this.signatureBase64);
     }
 
     public Certificate certificate() throws Exception{
         if(cert == null)
             genObjectsFromPayload();
-
         return cert;
     }
 

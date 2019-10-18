@@ -6,7 +6,7 @@ public class SAAHPResponse {
 
     private final DataInputStream out;
 
-    public SAAHPResponse(DataInputStream out) {
+    public SAAHPResponse(DataInputStream out){
         this.out = out;
     }
 }

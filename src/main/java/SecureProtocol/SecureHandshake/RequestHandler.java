@@ -25,6 +25,7 @@ public class RequestHandler implements Runnable{
 
         } catch (Exception e) {
             //Generate a Internal Error Exception TODO
+
             e.printStackTrace();
         }
     }

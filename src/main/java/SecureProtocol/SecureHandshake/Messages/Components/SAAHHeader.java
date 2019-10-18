@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class SAAHHeader {
     private static final String PROPERTIES_REGEX = "(.*):\\s*(.*)";
     private static final String REQUEST_HEADER_REGEX = "^(.*) (.*)/(.*) (SAAH/.*)\\n([\\S+\\s]*)$";
-    private static final String RESPONSE_HEADER_REGEX = "^(SAAH/.+) (\\d+)(.*)\\n([\\S+\\s]*)$";
+    private static final String RESPONSE_HEADER_REGEX = "^(SAAH/.+) (\\d+.*)\\n([\\S+\\s]*)$";
 
 
     public static final int INITIAL_CAPACITY = 20;
@@ -25,8 +25,7 @@ public class SAAHHeader {
     private String peerID;
 
     //Response
-    private String code;
-    private String codeRedable;
+    private SAAHPCode code;
 
     private SAAHHeader() {
         this.headerProperties = new HashMap<>(INITIAL_CAPACITY);
@@ -41,6 +40,20 @@ public class SAAHHeader {
         this.version = version;
     }
 
+    private SAAHHeader(SAAHPCode code, String version){
+        this.headerProperties = new HashMap<>(INITIAL_CAPACITY);
+        isRequest = false;
+        this.code = code;
+        this.version = version;
+    }
+
+    public SAAHHeader createNewResponseHeader(SAAHPCode code, String version){
+        return new SAAHHeader(code,version);
+    }
+
+    public SAAHHeader createNewRequestHeader(String method , String chatID, String peerID, String version){
+        return new SAAHHeader(method , chatID, peerID, version);
+    }
     private static final Pattern propertyMatcher = Pattern.compile(PROPERTIES_REGEX);
     private static final Pattern globalRequestHeaderMatcher = Pattern.compile(REQUEST_HEADER_REGEX);
     private static final Pattern globalResponseHeaderMatcher = Pattern.compile(RESPONSE_HEADER_REGEX);
@@ -64,7 +77,7 @@ public class SAAHHeader {
         if(isRequest){
             builder.append(String.format("%s %s/%s %s",method,chatID,peerID,version));
         }else{
-            builder.append(String.format("%s %s %s",version,code,codeRedable));
+            builder.append(String.format("%s %s",version, code));
         }
 
         for(Map.Entry<String,String> entry: headerProperties.entrySet()){
@@ -85,8 +98,8 @@ public class SAAHHeader {
 
     private static void parseResponse(SAAHHeader headerResult,Matcher matcher){
         headerResult.version = matcher.group(1);
-        headerResult.code = matcher.group(2);
-        headerResult.codeRedable = matcher.group(3);
+        String codeAsString = matcher.group(2);
+        headerResult.code = SAAHPCode.valueOf(codeAsString);
         parseProperties(headerResult,matcher.group(4));
     }
 
@@ -105,8 +118,8 @@ public class SAAHHeader {
         return chatID;
     }
 
-    public String getCode() {
-        return code;
+    public SAAHPCode getCode() {
+        return this.code;
     }
 
     public String getMethod() {
@@ -119,5 +132,9 @@ public class SAAHHeader {
 
     public String getVersion() {
         return version;
+    }
+
+    public void addNewProperty(String key, String value){
+        this.headerProperties.put(key,value);
     }
 }
