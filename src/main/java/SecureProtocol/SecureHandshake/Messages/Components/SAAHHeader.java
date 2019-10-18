@@ -26,6 +26,7 @@ public class SAAHHeader {
 
     //Response
     private String code;
+    private String codeRedable;
 
     private SAAHHeader() {
         this.headerProperties = new HashMap<>(INITIAL_CAPACITY);
@@ -63,7 +64,7 @@ public class SAAHHeader {
         if(isRequest){
             builder.append(String.format("%s %s/%s %s",method,chatID,peerID,version));
         }else{
-            builder.append(String.format("%s %s %s",version,code)); //todo readable status
+            builder.append(String.format("%s %s %s",version,code,codeRedable));
         }
 
         for(Map.Entry<String,String> entry: headerProperties.entrySet()){
@@ -85,6 +86,7 @@ public class SAAHHeader {
     private static void parseResponse(SAAHHeader headerResult,Matcher matcher){
         headerResult.version = matcher.group(1);
         headerResult.code = matcher.group(2);
+        headerResult.codeRedable = matcher.group(3);
         parseProperties(headerResult,matcher.group(4));
     }
 
