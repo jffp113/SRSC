@@ -1,4 +1,4 @@
-package SecureProtocol.SecureSocket.Security;
+package SecureProtocol.Security;
 
 import SecureProtocol.SecureSocket.Handler;
 

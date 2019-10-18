@@ -1,4 +1,4 @@
-package SecureProtocol.SecureSocket.Security;
+package SecureProtocol.Security;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

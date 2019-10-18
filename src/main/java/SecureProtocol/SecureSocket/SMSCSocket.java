@@ -1,9 +1,9 @@
 package SecureProtocol.SecureSocket;
 
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
-import SecureProtocol.SecureSocket.Security.Authenticity;
-import SecureProtocol.SecureSocket.Security.Confidentiality;
-import SecureProtocol.SecureSocket.Security.Integrity;
+import SecureProtocol.Security.Authenticity;
+import SecureProtocol.Security.Confidentiality;
+import SecureProtocol.Security.Integrity;
 import SecureProtocol.SecureSocket.Exception.SMSCException;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 

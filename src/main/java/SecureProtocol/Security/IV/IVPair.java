@@ -1,4 +1,4 @@
-package SecureProtocol.SecureSocket.Security.IV;
+package SecureProtocol.Security.IV;
 
 import java.security.spec.AlgorithmParameterSpec;
 

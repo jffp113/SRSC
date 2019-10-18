@@ -3,10 +3,10 @@ package SecureProtocol.SecureHandshake.Messages;
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHHeader;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPProperties;
+import SecureProtocol.Security.Signer;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.io.*;
 import java.security.cert.Certificate;
-import static SecureProtocol.Utils.base64Encode;
 
 
 public class SAAHPRequest {
@@ -16,22 +16,27 @@ public class SAAHPRequest {
     private Certificate cert;
     private String signatureBase64;
     private String permCertificate;
+    private Signer signer;
 
     private SAAHPRequest() {
         cert = null;
         signatureBase64 = null;
         permCertificate = null;
+        signer = Signer.getInstace();
     }
 
-    public SAAHPRequest(byte[] signature,Certificate cert,SAAHHeader header) throws Exception {
+    public SAAHPRequest(Certificate cert,SAAHHeader header) throws Exception {
         this.header = header;
         this.cert = cert;
-        signatureBase64 = base64Encode(signature);
+        signatureBase64 = null;
         permCertificate = CertificateUtil.getPermCertificateAsString(cert);
+        signer = Signer.getInstace();
     }
 
     public void sendRequestToOutputStream(DataOutputStream out) throws IOException {
-        out.writeUTF(header.serializeToString());
+        String headerAsString = header.serializeToString();
+        signatureBase64 = signer.doSign(headerAsString+permCertificate);
+        out.writeUTF(headerAsString);
         out.writeUTF("\n");
         out.writeUTF(permCertificate);
         out.writeUTF(signatureBase64);
