@@ -35,7 +35,7 @@ public class RequestHandler implements Runnable{
         try {
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
             X509Certificate certificate = (X509Certificate)clientRequest.certificate();
-            certificate.checkValidity();
+            clientRequest.verify();
 
             SAAHPHeader header = clientRequest.getHeader();
             String groupID = header.getChatID();

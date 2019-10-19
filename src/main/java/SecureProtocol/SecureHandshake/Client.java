@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Key;
+import java.security.cert.X509Certificate;
 
 public class Client {
 
@@ -50,8 +51,10 @@ public class Client {
         req.sendRequestToOutputStream(out);
 
         SAAHPResponse res = SAAHPResponse.getResponseFromInputStream(in);
+        res.verify();
 
         this.endpoint = res.getEndpoint();
         this.key = res.getKey();
     }
+
 }

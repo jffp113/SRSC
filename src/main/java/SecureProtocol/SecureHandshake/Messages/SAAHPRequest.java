@@ -7,6 +7,7 @@ import SecureProtocol.Security.Signer;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.io.*;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 
 public class SAAHPRequest {
@@ -49,6 +50,7 @@ public class SAAHPRequest {
         genObjectsFromPayload(request,in);
         return request;
     }
+
     private static void genObjectsFromPayload(SAAHPRequest request,DataInputStream dataStream) throws Exception {
         request.permCertificate = dataStream.readUTF();
         request.signatureBase64 = dataStream.readUTF();
@@ -67,13 +69,18 @@ public class SAAHPRequest {
         return Base64.decode(this.signatureBase64);
     }
 
-    public void verifySignatureAndThrowException() throws Exception {
+    public Certificate certificate(){
+        return cert;
+    }
+
+    public void verify() throws Exception{
+        ((X509Certificate)this.cert).checkValidity();
+        verifySignatureAndThrowException();
+    }
+
+    private void verifySignatureAndThrowException() throws Exception {
         String message = header.serializeToString() + permCertificate;
         if(!signer.verifySignature(message, signatureBase64, certificate().getPublicKey()))
             throw new NotAuthorizedException("");
-    }
-
-    public Certificate certificate(){
-        return cert;
     }
 }
