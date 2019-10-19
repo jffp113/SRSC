@@ -60,6 +60,22 @@ public class SMSCSocket extends MulticastSocket {
         nouceMap = new HashMap<>(100);
     }
 
+    public SMSCSocket(String peerId, String group, int port, EndPoint endPoint, Key key) throws Exception {
+        super(port);
+        this.sid = group.substring(1) + ":" + port;
+
+        //CIA
+        this.confidentiality = new SymmetricEncription(endPoint.getSea(), endPoint.getMode(), endPoint.getPadding(), key);
+        this.integrity = new Integrity(endPoint.getInthash());
+        this.authenticity = new Authenticity(endPoint.getMac(), key);
+
+        sAttributes = base64Encode(integrity.getHash(endpoint.getByteArray()));
+
+        this.peerId = peerId;
+        seqnum = 0;
+        nouceMap = new HashMap<>(100);
+    }
+
     @Override
     public void send(DatagramPacket p) throws IOException {
         byte[] finalPacket = genProtocolMessage(p);

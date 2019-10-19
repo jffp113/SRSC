@@ -23,14 +23,14 @@ public class AssymetricEncription {
         }
     }
 
-    public String encript(String content, PublicKey key) throws Exception {
+    public String encript(byte[] content, PublicKey key) throws Exception {
         cipher.init(Cipher.ENCRYPT_MODE, key);
-        return Utils.base64Encode(cipher.doFinal(content.getBytes()));
+        return Utils.base64Encode(cipher.doFinal(content));
 
     }
 
-    public String decript(String b64Content, PublicKey key) throws Exception {
+    public byte[] decript(String b64Content, PrivateKey key) throws Exception {
         cipher.init(Cipher.DECRYPT_MODE, key);
-        return new String(cipher.doFinal(Utils.base64Decode(b64Content)));
+        return cipher.doFinal(Utils.base64Decode(b64Content));
     }
 }

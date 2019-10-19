@@ -56,11 +56,7 @@ public class KeyManager {
     }
 
     private void generateKeyAndStore(String alias, String type, Integer size) throws Exception {
-        KeyGenerator gen = KeyGenerator.getInstance(type);
-        if(size != null)
-            gen.init(size);
-        SecretKey secretKey = gen.generateKey();
-        store(alias, secretKey);
+        store(alias, KeyManager.genRandomKey(type, size));
     }
 
     private void store(String name,SecretKey key) throws Exception{
@@ -76,6 +72,14 @@ public class KeyManager {
 
     public EndPoint getEndPoint(String multicastGroup){
         return endPointsMap.get(multicastGroup);
+    }
+
+    public static SecretKey genRandomKey(String type, Integer size) throws Exception {
+        KeyGenerator gen = KeyGenerator.getInstance(type);
+        if(size != null)
+            gen.init(size);
+        SecretKey secretKey = gen.generateKey();
+        return  secretKey;
     }
 
 }

@@ -61,4 +61,8 @@ public class CertificateUtil {
     public static PrivateKey getPersonalPrivateKey(){
         return privateKey;
     }
+
+    public static String getPermCertificateString() throws Exception {
+        return getPermCertificateAsString(personalCertificate);
+    }
 }
