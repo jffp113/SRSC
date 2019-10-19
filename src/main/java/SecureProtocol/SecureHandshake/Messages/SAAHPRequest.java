@@ -47,14 +47,10 @@ public class SAAHPRequest {
         String headerString = in.readUTF();
         in.readUTF();
         request.header = SAAHPHeader.parseHeader(headerString);
-        byte[] payload = new byte[Integer.parseInt(request.header.getProperty(SAAHPProperties.CONTENT_LENGTH.toString()))];
-        in.read(payload);
-        genObjectsFromPayload(request,payload);
+        genObjectsFromPayload(request,in);
         return request;
     }
-    private static void genObjectsFromPayload(SAAHPRequest request,byte[] payload) throws Exception {
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(payload,0,payload.length);
-        DataInputStream dataStream = new DataInputStream(byteStream);
+    private static void genObjectsFromPayload(SAAHPRequest request,DataInputStream dataStream) throws Exception {
         request.permCertificate = dataStream.readUTF();
         request.signatureBase64 = dataStream.readUTF();
         request.cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(request.permCertificate.getBytes()));

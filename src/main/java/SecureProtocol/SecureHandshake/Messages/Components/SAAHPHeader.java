@@ -134,7 +134,8 @@ public class SAAHPHeader {
         return version;
     }
 
-    public void addNewProperty(String key, String value){
+    public SAAHPHeader addNewProperty(String key, String value){
         this.headerProperties.put(key,value);
+        return this;
     }
 }
