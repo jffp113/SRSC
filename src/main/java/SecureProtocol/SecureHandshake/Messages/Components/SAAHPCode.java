@@ -18,6 +18,7 @@ public enum SAAHPCode {
 
     @Override
     public String toString() {
-        return String.format("%d %d",code,representation);
+        return String.format("%d %s",code,representation);
     }
+
 }

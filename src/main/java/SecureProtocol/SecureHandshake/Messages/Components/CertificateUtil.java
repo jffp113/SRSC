@@ -11,14 +11,20 @@ import java.util.Base64;
 
 public class CertificateUtil {
     private static final String PERM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----";
-    private static final File PERM_CERTIFICATE_FILE = new File("cert.perm");
-    private static final String PASSWORD = "Teste";
-    public static final String KEYSTORE = "privateKeystore.jks";
+    private static final File PERM_CERTIFICATE_FILE = new File("publickey.cer");
+    private static final String PASSWORD = "Teste1";
+    public static final String KEYSTORE = "keys.jks";
 
-    private static Certificate personalCertificate = loadCertificate();
-    private static PrivateKey privateKey = loadPersonalPrivateKey();
+    private static Certificate personalCertificate;
+    private static PrivateKey privateKey;
+
+    static{
+        personalCertificate = loadCertificate();
+        privateKey = loadPersonalPrivateKey();
+    }
 
     private static Certificate loadCertificate(){
+        System.out.println("Load Certificate");
         try {
             return certificatesFromFile(PERM_CERTIFICATE_FILE);
         } catch (Exception e) {
@@ -28,11 +34,9 @@ public class CertificateUtil {
     }
 
     private static PrivateKey loadPersonalPrivateKey(){
-        FileInputStream is = null;
         try {
-            is = new FileInputStream(KEYSTORE);
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keystore.load(is, PASSWORD.toCharArray());
+            keystore.load(new FileInputStream(KEYSTORE), PASSWORD.toCharArray());
             return (PrivateKey)keystore.getKey("myKey",PASSWORD.toCharArray());
         } catch (Exception e) {
             e.printStackTrace();

@@ -68,7 +68,7 @@ public class SMSCSocket extends MulticastSocket {
         this.confidentiality = new SymmetricEncription(endPoint.getSea(), endPoint.getMode(), endPoint.getPadding(), key);
         this.integrity = new Integrity(endPoint.getInthash());
         this.authenticity = new Authenticity(endPoint.getMac(), key);
-
+        this.endpoint = endPoint;
         sAttributes = base64Encode(integrity.getHash(endpoint.getByteArray()));
 
         this.peerId = peerId;

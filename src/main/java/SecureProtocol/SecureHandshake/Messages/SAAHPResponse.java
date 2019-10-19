@@ -13,11 +13,13 @@ import SecureProtocol.Utils;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.security.Key;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.util.Arrays;
 
 public class SAAHPResponse {
 
@@ -32,6 +34,7 @@ public class SAAHPResponse {
     private SAAHPHeader header;
     private EndPoint endpoint;
     private PublicKey publickey;
+    private Certificate cert;
     private Key key;
 
     private SAAHPResponse(EndPoint endpoint, PublicKey publickey){
@@ -48,30 +51,33 @@ public class SAAHPResponse {
     }
 
     public void sendResponseToOutputStream(DataOutputStream out) throws Exception {
-        //TODO
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        DataOutputStream dataStream = new DataOutputStream(byteStream);
+
+        //write header
+        out.writeUTF(header.serializeToString());
+
+        //write certificate
         String cert = CertificateUtil.getPermCertificateString();
+        out.writeUTF(cert);
+
         SecretKey secretKey = KeyManager.genRandomKey("AES", 256);
         SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding", secretKey);
 
         byte[] m2 = genMessage();
         byte[] hash = new Integrity("SHA512").getHash(m2);
-        byte[] m2_hash = new byte[m2.length + hash.length];
+        dataStream.write(hash);
+        dataStream.write(m2);
 
-        System.arraycopy(m2, 0, m2_hash, 0, m2.length);
-        System.arraycopy(hash, 0, m2_hash, m2.length, m2_hash.length);
-
-        String x = Utils.base64Encode(symm.encrypt(m2_hash));
+        //Encrypted Message with Key
+        String m2_hash = Utils.base64Encode(symm.encrypt(byteStream.toByteArray()));
+        out.writeUTF(m2_hash);
 
         AssymetricEncription asymm = new AssymetricEncription();
-        String y = asymm.encript(secretKey.getEncoded(), publickey);
+        String keyEncryptedWithPublicKey = asymm.encript(secretKey.getEncoded(), publickey);
 
-        String sign = Signer.getInstace().doSign(cert + x + y);
-
-        out.writeUTF(header.serializeToString());
-        out.writeUTF(cert);
-        out.writeUTF(x);
-        out.writeUTF(y);
-        out.writeUTF(sign);
+        out.writeUTF(keyEncryptedWithPublicKey);
+        out.writeUTF(Signer.getInstace().doSign(cert + m2_hash + keyEncryptedWithPublicKey));
     }
 
     private byte[] genMessage() {
@@ -83,37 +89,43 @@ public class SAAHPResponse {
     public static SAAHPResponse getResponseFromInputStream(DataInputStream in) throws Exception {
         SAAHPHeader header = SAAHPHeader.parseHeader(in.readUTF());
         Certificate cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(in.readUTF().getBytes()));
-        byte[] _m2_hash_ = Utils.base64Decode(in.readUTF());
-        String _k_ = in.readUTF();
 
-        AssymetricEncription assym = new AssymetricEncription();
-        byte[] k = assym.decript(_k_, CertificateUtil.getPersonalPrivateKey());
+        byte[] m2_hash_Encrypted = Utils.base64Decode(in.readUTF());
+        String k_encrypted = in.readUTF();
+
+        AssymetricEncription assymetricEncription = new AssymetricEncription();
+        byte[] k = assymetricEncription.decript(k_encrypted, CertificateUtil.getPersonalPrivateKey());
         Key key = new SecretKeySpec(k, "AES");
 
-        SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding", key);
-        symm.decrypt(_m2_hash_);
+        SymmetricEncription symmetricEncription = new SymmetricEncription("AES","CBC","PKCS5Padding", key);
+        byte[] m2_hash = symmetricEncription.decrypt(m2_hash_Encrypted);
 
         Integrity integrity = new Integrity("SHA512");
         int hashSize = integrity.getHashSize();
-        int m2Size = _m2_hash_.length - hashSize;
+        int m2Size = m2_hash.length - hashSize;
+
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(m2_hash);
+        DataInputStream dataStream = new DataInputStream(byteStream);
 
         byte[] hash = new byte[hashSize];
+        dataStream.read(hash);
         byte[] m2 = new byte[m2Size];
+        dataStream.read(m2);
 
-        System.arraycopy(_m2_hash_,0, m2, 0, m2Size);
-        System.arraycopy(_m2_hash_, m2Size, hash, 0, hashSize);
-
-        if(!integrity.getHash(m2).equals(hash))
+        byte[] tmp = integrity.getHash(m2);
+        if(!Arrays.equals(integrity.getHash(m2),hash))
             throw new Exception();
 
         String[] m = new String(m2).split("\n");
-        String eps = m[0];
-        String nouce = m[1];
+        String nouce = m[10];
 
-        EndPointSerializer e = EndPointSerializer.deserialize(eps);
+        EndPointSerializer e = EndPointSerializer.deserialize(new String(m2));
         Key chatKey = new SecretKeySpec(Utils.base64Decode(e.b64Key), e.endPoint.getSea());
 
-        return new SAAHPResponse(e.endPoint, chatKey);
+        SAAHPResponse response = new SAAHPResponse(e.endPoint, chatKey);
+        response.header = header;
+        response.cert = cert;
+        return response;
     }
 
     public static SAAHPResponse createSuccessResponse(EndPoint endpoint, PublicKey key){

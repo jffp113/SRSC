@@ -3,7 +3,6 @@ package SecureProtocol.SecureHandshake.Messages;
 import SecureProtocol.SecureHandshake.Exception.NotAuthorizedException;
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
-import SecureProtocol.SecureHandshake.Messages.Components.SAAHPProperties;
 import SecureProtocol.Security.Signer;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.io.*;

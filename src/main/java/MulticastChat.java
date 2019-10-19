@@ -53,7 +53,7 @@ public class MulticastChat extends Thread {
     this.listener = listener;
     isActive = true;
 
-    Client c = new Client(username, group.toString());
+    Client c = new Client(username, group.toString(),port);
     c.getEndPoinsAndKeyFromSAAHServer();
 
     // create & configure multicast socket

@@ -39,7 +39,7 @@ public class RequestHandler implements Runnable{
 
             SAAHPHeader header = clientRequest.getHeader();
             String groupID = header.getChatID();
-            EndPoint endpoint = XMLSecurityProperty.getEndPoints("SMCP.config").get(groupID);
+            EndPoint endpoint = XMLSecurityProperty.getEndPoints("SMCP.conf").get(groupID);
             SAAHPResponse.createSuccessResponse( endpoint, certificate.getPublicKey() ).sendResponseToOutputStream(out);
 
         } catch (NotAuthorizedException e){

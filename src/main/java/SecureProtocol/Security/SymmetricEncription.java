@@ -19,6 +19,7 @@ public class SymmetricEncription extends AbstractSecurity{
         this.mode = mode;
         c = Cipher.getInstance(sea + "/" + mode + "/" + padding);
         this.key = key;
+        ivSpec = getIV(mode, c.getBlockSize());
     }
 
     public byte[] encrypt(byte[] input){

@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 public class SAAHPHeader {
     private static final String PROPERTIES_REGEX = "(.*):\\s*(.*)";
-    private static final String REQUEST_HEADER_REGEX = "^(.*) (.*)/(.*) (SAAH/.*)\\n([\\S+\\s]*)$";
-    private static final String RESPONSE_HEADER_REGEX = "^(SAAH/.+) (\\d+.*)\\n([\\S+\\s]*)$";
+    private static final String REQUEST_HEADER_REGEX = "^(.*) (.*)/(.*) (SAAH/.*)\\n*([\\S+\\s]*)$";
+    private static final String RESPONSE_HEADER_REGEX = "^(SAAH/.*) (\\d+.*)\\n*([\\S+\\s]*)$";
 
 
     public static final int INITIAL_CAPACITY = 20;
@@ -66,6 +66,7 @@ public class SAAHPHeader {
             parseRequest(headerResult,requestMatcher);
         }else{
             Matcher responseMatcher = globalResponseHeaderMatcher.matcher(headerString);
+            responseMatcher.matches();
             parseResponse(headerResult,responseMatcher);
         }
 
@@ -99,8 +100,8 @@ public class SAAHPHeader {
     private static void parseResponse(SAAHPHeader headerResult, Matcher matcher){
         headerResult.version = matcher.group(1);
         String codeAsString = matcher.group(2);
-        headerResult.code = SAAHPCode.valueOf(codeAsString);
-        parseProperties(headerResult,matcher.group(4));
+        headerResult.code = SAAHPCode.valueOf(codeAsString.split(" ")[1].toUpperCase());
+        parseProperties(headerResult,matcher.group(3));
     }
 
     private static void parseProperties(SAAHPHeader headerResult, String propertiesAsString) {
