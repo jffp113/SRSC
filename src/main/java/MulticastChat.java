@@ -44,8 +44,8 @@ public class MulticastChat extends Thread {
 
   protected boolean isActive;
 
-  public MulticastChat(String username, InetAddress group, int port, 
-                       int ttl, 
+  public MulticastChat(String username, InetAddress group, int port,
+                       int ttl,
                        MulticastChatEventListener listener) throws Exception {
 
     this.username = username;
@@ -53,16 +53,16 @@ public class MulticastChat extends Thread {
     this.listener = listener;
     isActive = true;
 
-    //phase2
-    Client c = new Client(username, group.toString(),port);
-    c.getEndPoinsAndKeyFromSAAHPServer();
-
     // create & configure multicast socket
+    //default
+    //msocket = new MulticastSocket(port);
 
     //phase1
     //msocket = new SMCPSocket(username, group.toString(), port);
 
     //phase2
+    Client c = new Client(username, group.toString(),port);
+    c.getEndPoinsAndKeyFromSAAHPServer();
     msocket = new SMCPSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
 
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
@@ -82,13 +82,13 @@ public class MulticastChat extends Thread {
   public void terminate() throws IOException {
     isActive = false;
     sendLeave();
-  } 
+  }
 
   // Issues an error message
   protected void error(String message) {
-    System.err.println(new java.util.Date() + ": MulticastChat: " 
-                       + message);
-  } 
+    System.err.println(new java.util.Date() + ": MulticastChat: "
+            + message);
+  }
 
   // Envio de mensagem na op. de JOIN
   // 
@@ -102,21 +102,21 @@ public class MulticastChat extends Thread {
     dataStream.close();
 
     byte[] data = byteStream.toByteArray();
-    DatagramPacket packet = new DatagramPacket(data, data.length, group, 
-                                               msocket.getLocalPort());
+    DatagramPacket packet = new DatagramPacket(data, data.length, group,
+            msocket.getLocalPort());
     msocket.send(packet);
-  } 
+  }
 
   // Processamento de um JOIN ao grupo multicast com notificacao
   // 
-  protected void processJoin(DataInputStream istream, InetAddress address, 
+  protected void processJoin(DataInputStream istream, InetAddress address,
                              int port) throws IOException {
     String name = istream.readUTF();
 
     try {
       listener.chatParticipantJoined(name, address, port);
     } catch (Throwable e) {}
-  } 
+  }
 
   // Envio de mensagem de LEAVE para o Chat
   protected void sendLeave() throws IOException {
@@ -130,21 +130,21 @@ public class MulticastChat extends Thread {
     dataStream.close();
 
     byte[] data = byteStream.toByteArray();
-    DatagramPacket packet = new DatagramPacket(data, data.length, group, 
-                                               msocket.getLocalPort());
+    DatagramPacket packet = new DatagramPacket(data, data.length, group,
+            msocket.getLocalPort());
     msocket.send(packet);
-  } 
+  }
 
   // Processes a multicast chat LEAVE PDU and notifies listeners
   // Processamento de mensagem de LEAVE  // 
-  protected void processLeave(DataInputStream istream, InetAddress address, 
+  protected void processLeave(DataInputStream istream, InetAddress address,
                               int port) throws IOException {
     String username = istream.readUTF();
 
     try {
       listener.chatParticipantLeft(username, address, port);
     } catch (Throwable e) {}
-  } 
+  }
 
   // Envio de uma mensagem normal
   // 
@@ -160,16 +160,16 @@ public class MulticastChat extends Thread {
     dataStream.close();
 
     byte[] data = byteStream.toByteArray();
-    DatagramPacket packet = new DatagramPacket(data, data.length, group, 
-                                               msocket.getLocalPort());
+    DatagramPacket packet = new DatagramPacket(data, data.length, group,
+            msocket.getLocalPort());
     msocket.send(packet);
-  } 
+  }
 
 
   // Processamento de uma mensagem normal  //
   // 
-  protected void processMessage(DataInputStream istream, 
-                                InetAddress address, 
+  protected void processMessage(DataInputStream istream,
+                                InetAddress address,
                                 int port) throws IOException {
     String username = istream.readUTF();
     String message = istream.readUTF();
@@ -177,7 +177,7 @@ public class MulticastChat extends Thread {
     try {
       listener.chatMessageReceived(username, address, port, message);
     } catch (Throwable e) {}
-  } 
+  }
 
   // Loops - recepcao e desmultiplexagem de datagramas de acordo com
   // as operacoes e mensagens
@@ -193,49 +193,49 @@ public class MulticastChat extends Thread {
         packet.setLength(buffer.length);
         msocket.receive(packet);
 
-        DataInputStream istream = 
-          new DataInputStream(new ByteArrayInputStream(packet.getData(), 
-                packet.getOffset(), packet.getLength()));
+        DataInputStream istream =
+                new DataInputStream(new ByteArrayInputStream(packet.getData(),
+                        packet.getOffset(), packet.getLength()));
 
         long magic = istream.readLong();
 
         if (magic != CHAT_MAGIC_NUMBER) {
           continue;
 
-        } 
+        }
         int opCode = istream.readInt();
         switch (opCode) {
-        case JOIN:
-          processJoin(istream, packet.getAddress(), packet.getPort());
-          break;
-        case LEAVE:
-          processLeave(istream, packet.getAddress(), packet.getPort());
-          break;
-        case MESSAGE:
-          processMessage(istream, packet.getAddress(), packet.getPort());
-          break;
-        default:
-          error("Cod de operacao desconhecido " + opCode + " enviado de " 
-                + packet.getAddress() + ":" + packet.getPort());
+          case JOIN:
+            processJoin(istream, packet.getAddress(), packet.getPort());
+            break;
+          case LEAVE:
+            processLeave(istream, packet.getAddress(), packet.getPort());
+            break;
+          case MESSAGE:
+            processMessage(istream, packet.getAddress(), packet.getPort());
+            break;
+          default:
+            error("Cod de operacao desconhecido " + opCode + " enviado de "
+                    + packet.getAddress() + ":" + packet.getPort());
         }
 
       } catch (InterruptedIOException e) {
 
         /**
          * O timeout e usado apenas para forcar um loopback e testar
-		 * o valor isActive 
+         * o valor isActive
          */
-	 
-	 
+
+
       } catch (Throwable e) {
-        error("Processing error: " + e.getClass().getName() + ": " 
-              + e.getMessage());
+        error("Processing error: " + e.getClass().getName() + ": "
+                + e.getMessage());
         e.printStackTrace();
-      } 
-    } 
+      }
+    }
 
     try {
       msocket.close();
     } catch (Throwable e) {}
-  } 
+  }
 }
