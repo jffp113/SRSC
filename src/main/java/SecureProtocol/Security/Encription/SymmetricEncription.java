@@ -1,6 +1,6 @@
-package SecureProtocol.Security;
+package SecureProtocol.Security.Encription;
 
-import SecureProtocol.Security.IV.*;
+import SecureProtocol.Security.Encription.IV.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;

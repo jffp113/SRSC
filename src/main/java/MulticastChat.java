@@ -2,7 +2,7 @@
 // Objecto que representa um chat Multicast
 
 import SecureProtocol.SecureHandshake.Client;
-import SecureProtocol.SecureSocket.SMSCSocket;
+import SecureProtocol.SecureSocket.SMCPSocket;
 
 import java.io.*;
 import java.net.*;
@@ -57,8 +57,8 @@ public class MulticastChat extends Thread {
     c.getEndPoinsAndKeyFromSAAHServer();
 
     // create & configure multicast socket
-    //msocket = new SMSCSocket(username, group.toString(), port);
-    msocket = new SMSCSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
+    //msocket = new SMCPSocket(username, group.toString(), port);
+    msocket = new SMCPSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
 
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
     msocket.setTimeToLive(ttl);

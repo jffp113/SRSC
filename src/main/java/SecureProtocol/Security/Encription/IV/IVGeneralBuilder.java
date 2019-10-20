@@ -1,15 +1,15 @@
-package SecureProtocol.Security.IV;
+package SecureProtocol.Security.Encription.IV;
 
-import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 
-public class IVGCMBuilder extends GCMParameterSpec implements IVMessageBuilder {
+public class IVGeneralBuilder extends IvParameterSpec implements IVMessageBuilder {
 
-   private GCMParameterSpec spec;
+    private IvParameterSpec spec;
 
-    public IVGCMBuilder(GCMParameterSpec spec) {
-        super(spec.getTLen(),spec.getIV());
-        this.spec = (GCMParameterSpec)spec;
+    public IVGeneralBuilder(IvParameterSpec spec) {
+        super(spec.getIV());
+        this.spec = spec;
     }
 
     @Override
@@ -36,17 +36,16 @@ public class IVGCMBuilder extends GCMParameterSpec implements IVMessageBuilder {
             dataStream.read(iv);
             messageE = new byte[dataStream.readInt()];
             dataStream.read(messageE);
+            dataStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-        return new IVPair(new GCMParameterSpec(spec.getTLen(),iv),messageE);
+        return new IVPair(new IvParameterSpec(iv),messageE);
     }
 
 
     @Override
-    public GCMParameterSpec getSpec() {
+    public IvParameterSpec getSpec() {
         return spec;
     }
 }

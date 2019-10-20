@@ -8,7 +8,10 @@ import SecureProtocol.SecureHandshake.RequestHandler;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.EndPointSerializer;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
-import SecureProtocol.Security.*;
+import SecureProtocol.Security.Encription.AssymetricEncription;
+import SecureProtocol.Security.Encription.Integrity;
+import SecureProtocol.Security.Encription.Signer;
+import SecureProtocol.Security.Encription.SymmetricEncription;
 import SecureProtocol.Utils;
 
 import javax.crypto.SecretKey;
@@ -84,8 +87,8 @@ public class SAAHPResponse {
 
     private byte[] genMessage() {
         String eps = EndPointSerializer.serializeToString(endpoint, Utils.base64Encode(publickey.getEncoded()));
-        String nounce = System.nanoTime()+"";
-        return (eps + "\n" + nounce).getBytes();
+        String nonce = System.nanoTime()+"";
+        return (eps + "\n" + nonce).getBytes();
     }
 
     public static SAAHPResponse getResponseFromInputStream(DataInputStream in) throws Exception {

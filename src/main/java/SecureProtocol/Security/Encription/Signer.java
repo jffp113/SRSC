@@ -1,4 +1,4 @@
-package SecureProtocol.Security;
+package SecureProtocol.Security.Encription;
 
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.Utils;
