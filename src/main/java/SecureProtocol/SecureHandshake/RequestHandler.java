@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.security.cert.X509Certificate;
 
 public class RequestHandler implements Runnable{
-    public static final String HANDLER_PROTOCOL_VERSION = "SAAH/1.0";
+    public static final String HANDLER_PROTOCOL_VERSION = "SAAHP/1.0";
 
     private final DataInputStream in;
     private final DataOutputStream out;

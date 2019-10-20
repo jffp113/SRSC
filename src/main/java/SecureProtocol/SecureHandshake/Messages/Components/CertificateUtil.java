@@ -24,7 +24,6 @@ public class CertificateUtil {
     }
 
     private static Certificate loadCertificate(){
-        System.out.println("Load Certificate");
         try {
             return certificatesFromFile(PERM_CERTIFICATE_FILE);
         } catch (Exception e) {

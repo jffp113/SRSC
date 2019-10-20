@@ -43,10 +43,10 @@ public class Client {
         return key;
     }
 
-    public void getEndPoinsAndKeyFromSAAHServer() throws Exception {
+    public void getEndPoinsAndKeyFromSAAHPServer() throws Exception {
         SAAHPRequest req = new SAAHPRequest(CertificateUtil.getPersonalCertificate(),
                 SAAHPHeader.createNewRequestHeader("GETINFO", multichatGroup.substring(1) + ":"
-                        + port, peerID, "SAAH/1.0"));
+                        + port, peerID, "SAAHP/1.0"));
 
         req.sendRequestToOutputStream(out);
 

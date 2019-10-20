@@ -1,5 +1,7 @@
 package SecureProtocol.SecureHandshake.Messages.Components;
 
+import SecureProtocol.Utils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -7,8 +9,8 @@ import java.util.regex.Pattern;
 
 public class SAAHPHeader {
     private static final String PROPERTIES_REGEX = "(.*):\\s*(.*)";
-    private static final String REQUEST_HEADER_REGEX = "^(.*) (.*)/(.*) (SAAH/.*)\\n*([\\S+\\s]*)$";
-    private static final String RESPONSE_HEADER_REGEX = "^(SAAH/.*) (\\d+.*)\\n*([\\S+\\s]*)$";
+    private static final String REQUEST_HEADER_REGEX = "^(.*) (.*)/(.*) (SAAHP/.*)\\n*([\\S+\\s]*)$";
+    private static final String RESPONSE_HEADER_REGEX = "^(SAAHP/.*) (\\d+.*)\\n*([\\S+\\s]*)$";
 
 
     public static final int INITIAL_CAPACITY = 20;
@@ -94,6 +96,7 @@ public class SAAHPHeader {
         headerResult.peerID = matcher.group(3);
         headerResult.version = matcher.group(4);
         parseProperties(headerResult,matcher.group(5));
+        //Utils.log("Adding: " + headerResult.peerID + " to " + headerResult.chatID);
     }
 
 
