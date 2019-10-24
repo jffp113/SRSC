@@ -1,11 +1,9 @@
-package SecureProtocol.SecureHandshake;
+package SecureProtocol.SecureHandshake.ServerComponents;
 
-import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
-import SecureProtocol.Utils;
+import SecureProtocol.SecureHandshake.RequestHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.security.Key;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 

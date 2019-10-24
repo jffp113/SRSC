@@ -3,6 +3,7 @@ package SecureProtocol.SecureHandshake.Messages.Components;
 public enum SAAHPCode {
 
     ACCEPTED(200,"Accepted"),
+    NOT_MODIFIED(201,"Not Modified"),
     REJECTED(100,"Rejected"),
     CRIPTOGRAPHY_NOT_ACCEPTED(101,"Cryptography Not Accepted"),
     INTERNAL_ERROR(101,"Internal Error"),

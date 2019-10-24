@@ -44,7 +44,7 @@ public class MulticastChat extends Thread {
 
   protected boolean isActive;
 
-  public MulticastChat(String username, InetAddress group, int port,
+  public MulticastChat(String username,String password,InetAddress group, int port,
                        int ttl,
                        MulticastChatEventListener listener) throws Exception {
 
@@ -61,7 +61,7 @@ public class MulticastChat extends Thread {
     //msocket = new SMCPSocket(username, group.toString(), port);
 
     //phase2
-    Client c = new Client(username, group.toString(),port);
+    Client c = new Client(username,password, group.toString(),port);
     c.getEndPoinsAndKeyFromSAAHPServer();
     msocket = new SMCPSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
 

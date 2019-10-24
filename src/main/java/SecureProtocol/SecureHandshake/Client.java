@@ -1,21 +1,23 @@
 package SecureProtocol.SecureHandshake;
 
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
+import SecureProtocol.SecureHandshake.Messages.Components.SAAHPCode;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.Messages.SAAHPRequest;
 import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
+import SecureProtocol.Security.Encription.Integrity;
+import SecureProtocol.Utils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Key;
-import java.security.cert.X509Certificate;
 
 public class Client {
 
     private final int port;
+    private final String userPassword;
     private String peerID;
     private String multichatGroup;
 
@@ -26,7 +28,8 @@ public class Client {
     private EndPoint endpoint;
     private Key key;
 
-    public Client(String peerID, String multichatGroup , int port) throws Exception {
+    public Client(String peerID, String userPassword, String multichatGroup , int port) throws Exception {
+        this.userPassword = userPassword;
         this.peerID = peerID;
         this.multichatGroup = multichatGroup;
         this.socket = new Socket("localhost", 6789);
@@ -50,7 +53,13 @@ public class Client {
 
         req.sendRequestToOutputStream(out);
 
-        SAAHPResponse res = SAAHPResponse.getResponseFromInputStream(in);
+        SAAHPResponse res = SAAHPResponse.getResponseFromInputStream(in,
+                Utils.base64Encode(new Integrity("SHA512").getHash(userPassword.getBytes())));
+
+        if(!res.getHeader().getCode().equals(SAAHPCode.ACCEPTED)){
+            throw new Exception(res.getHeader().getCode().toString());
+        }
+
         res.verify();
 
         this.endpoint = res.getEndpoint();

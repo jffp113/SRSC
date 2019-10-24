@@ -3,6 +3,7 @@ package SecureProtocol.SecureHandshake.Messages;
 import SecureProtocol.SecureHandshake.Exception.NotAuthorizedException;
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
+import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.Security.Encription.Signer;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import java.io.*;
@@ -57,16 +58,8 @@ public class SAAHPRequest {
         request.cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(request.permCertificate.getBytes()));
     }
 
-    public Certificate getCert() throws Exception {
-        return cert;
-    }
-
     public SAAHPHeader getHeader() {
         return header;
-    }
-
-    public byte[] getSignature() throws Exception {
-        return Base64.decode(this.signatureBase64);
     }
 
     public Certificate certificate(){
@@ -75,10 +68,6 @@ public class SAAHPRequest {
 
     public void verify() throws Exception{
         ((X509Certificate)this.cert).checkValidity();
-        verifySignatureAndThrowException();
-    }
-
-    private void verifySignatureAndThrowException() throws Exception {
         String message = permCertificate;
         if(!signer.verifySignature(message, signatureBase64, certificate().getPublicKey()))
             throw new NotAuthorizedException("");

@@ -5,6 +5,7 @@ import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPCode;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.RequestHandler;
+import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.EndPointSerializer;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
@@ -12,14 +13,12 @@ import SecureProtocol.Security.Encription.AssymetricEncription;
 import SecureProtocol.Security.Encription.Integrity;
 import SecureProtocol.Security.Encription.Signer;
 import SecureProtocol.Security.Encription.SymmetricEncription;
+import SecureProtocol.Security.Rekeying;
 import SecureProtocol.Utils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.*;
 import java.security.Key;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -41,6 +40,7 @@ public class SAAHPResponse {
     private PublicKey publickey;
     private Certificate cert;
     private Key key;
+    private String user;
 
     private SAAHPResponse(EndPoint endpoint, PublicKey publickey){
         this.header = null;
@@ -61,13 +61,22 @@ public class SAAHPResponse {
 
         //write header
         out.writeUTF(header.serializeToString());
+    }
+
+    public void sendResponseToOutputStream(DataOutputStream out,String credencials) throws Exception {
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        DataOutputStream dataStream = new DataOutputStream(byteStream);
+
+        //write header
+        out.writeUTF(header.serializeToString());
 
         //write certificate
         String cert = CertificateUtil.getPermCertificateString();
         out.writeUTF(cert);
 
         SecretKey secretKey = KeyManager.genRandomKey("AES", 256);
-        SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding", secretKey);
+        SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding",
+                Rekeying.xorKeyWithHash(credencials,secretKey));
 
         byte[] m2 = genMessage();
         byte[] hash = new Integrity("SHA512").getHash(m2);
@@ -91,8 +100,14 @@ public class SAAHPResponse {
         return (eps + "\n" + nonce).getBytes();
     }
 
-    public static SAAHPResponse getResponseFromInputStream(DataInputStream in) throws Exception {
+    public static SAAHPResponse getResponseFromInputStream(DataInputStream in,String userPasswordHasHash) throws Exception {
         SAAHPHeader header = SAAHPHeader.parseHeader(in.readUTF());
+
+        if(!header.getCode().equals(SAAHPCode.ACCEPTED)) {
+            SAAHPResponse response = new SAAHPResponse(null,null);
+            response.header = header;
+            return response;
+        }
         String certAsString = in.readUTF();
         Certificate cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(certAsString.getBytes()));
 
@@ -104,7 +119,8 @@ public class SAAHPResponse {
         byte[] k = assymetricEncription.decript(k_encrypted, CertificateUtil.getPersonalPrivateKey());
         Key key = new SecretKeySpec(k, "AES");
 
-        SymmetricEncription symmetricEncription = new SymmetricEncription("AES","CBC","PKCS5Padding", key);
+        SymmetricEncription symmetricEncription = new SymmetricEncription("AES","CBC","PKCS5Padding",
+                Rekeying.xorKeyWithHash(userPasswordHasHash,key));
         byte[] m2_hash = symmetricEncription.decrypt(m2_hash_Encrypted);
 
         Integrity integrity = new Integrity("SHA512");
@@ -137,9 +153,22 @@ public class SAAHPResponse {
         return response;
     }
 
-    public static SAAHPResponse createSuccessResponse(EndPoint endpoint, PublicKey key){
+
+    public static SAAHPResponse createSuccessResponse(EndPoint endpoint, PublicKey key,String user){
         SAAHPResponse s = new SAAHPResponse(endpoint, key);
+        s.user = user;
         s.header = SAAHPHeader.createNewResponseHeader(SAAHPCode.ACCEPTED, RequestHandler.HANDLER_PROTOCOL_VERSION);
+        return s;
+    }
+
+    public static SAAHPResponse createDeniedResponse(){
+        SAAHPResponse s = new SAAHPResponse(null, null);
+        s.header = SAAHPHeader.createNewResponseHeader(SAAHPCode.REJECTED, RequestHandler.HANDLER_PROTOCOL_VERSION);
+        return s;
+    }
+    public static SAAHPResponse createInternalErrorResponse(){
+        SAAHPResponse s = new SAAHPResponse(null, null);
+        s.header = SAAHPHeader.createNewResponseHeader(SAAHPCode.INTERNAL_ERROR, RequestHandler.HANDLER_PROTOCOL_VERSION);
         return s;
     }
 
@@ -147,8 +176,12 @@ public class SAAHPResponse {
         ((X509Certificate)this.cert).checkValidity();
     }
 
-    private static void verifySignatureAndThrowException(String cert ,String m2_hash, String keyEncryptedWithPublicKey,
-                                                  String signature, Certificate certificate) throws Exception {
+    public SAAHPHeader getHeader() {
+        return header;
+    }
+
+    private static void verifySignatureAndThrowException(String cert , String m2_hash, String keyEncryptedWithPublicKey,
+                                                         String signature, Certificate certificate) throws Exception {
         if(!Signer.getInstace().verifySignature(cert+m2_hash+keyEncryptedWithPublicKey,
                 signature,certificate.getPublicKey()))
           throw new NotAuthorizedException("");

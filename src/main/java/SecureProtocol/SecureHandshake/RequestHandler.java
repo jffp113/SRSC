@@ -1,14 +1,12 @@
 package SecureProtocol.SecureHandshake;
 
 import SecureProtocol.SecureHandshake.Exception.NotAuthorizedException;
-import SecureProtocol.SecureHandshake.Messages.Components.SAAHPCode;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
 import SecureProtocol.SecureHandshake.Messages.SAAHPRequest;
 import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
+import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.XMLSecurityProperty;
-import SecureProtocol.SecureSocket.Handler;
-import sun.security.x509.CertificateX509Key;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,24 +33,43 @@ public class RequestHandler implements Runnable{
         try {
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
             X509Certificate certificate = (X509Certificate)clientRequest.certificate();
+
             clientRequest.verify();
 
             SAAHPHeader header = clientRequest.getHeader();
             String groupID = header.getChatID();
             EndPoint endpoint = XMLSecurityProperty.getEndPoints("SMCP.conf").get(groupID);
-            SAAHPResponse.createSuccessResponse( endpoint, certificate.getPublicKey() ).sendResponseToOutputStream(out);
+            SAAHPResponse.createSuccessResponse( endpoint, certificate.getPublicKey(),
+                    clientRequest.getHeader().getPeerID() ).sendResponseToOutputStream(out,
+                    Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()));
 
         } catch (NotAuthorizedException e){
-            //Generate a Not Authorized response TODO
-            SAAHPHeader.createNewResponseHeader(SAAHPCode.REJECTED, HANDLER_PROTOCOL_VERSION);
+            sendDenied(out);
+            e.printStackTrace();
         } catch (Exception e) {
-            //Generate a Internal Error Exception TODO
-            SAAHPHeader.createNewResponseHeader(SAAHPCode.INTERNAL_ERROR,HANDLER_PROTOCOL_VERSION);
+            sendInternalError(out);
             e.printStackTrace();
         } finally {
             handlerResourcesClose();
         }
     }
+
+    private void sendDenied(DataOutputStream out){
+        try {
+            SAAHPResponse.createDeniedResponse().sendResponseToOutputStream(out);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void sendInternalError(DataOutputStream out){
+        try {
+            SAAHPResponse.createInternalErrorResponse().sendResponseToOutputStream(out);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     private void handlerResourcesClose(){
         try {
@@ -63,6 +80,8 @@ public class RequestHandler implements Runnable{
             e.printStackTrace();
         }
     }
+
+
 
 
 
