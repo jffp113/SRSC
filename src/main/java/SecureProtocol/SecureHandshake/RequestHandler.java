@@ -7,6 +7,7 @@ import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
 import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.XMLSecurityProperty;
+import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 import SecureProtocol.Security.CertificateChain;
 
 import java.io.DataInputStream;
@@ -30,19 +31,18 @@ public class RequestHandler implements Runnable{
 
     public void run(){
         final SAAHPRequest clientRequest;
-        final SAAHPResponse serverResponse;
         try {
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
             CertificateChain certificate = (CertificateChain)clientRequest.certificate();
-
             clientRequest.verify();
 
             SAAHPHeader header = clientRequest.getHeader();
             String groupID = header.getChatID();
-            EndPoint endpoint = XMLSecurityProperty.getEndPoints("SMCP.conf").get(groupID);
-            SAAHPResponse.createSuccessResponse( endpoint, certificate.getPublicKey(),
-                    clientRequest.getHeader().getPeerID() ).sendResponseToOutputStream(out,
-                    Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()));
+            EndPoint endpoint = KeyManager.getInstance().getEndPoint(groupID);
+            SAAHPResponse
+                    .createSuccessResponse(endpoint, certificate.getPublicKey(), clientRequest.getHeader().getPeerID())
+                    .sendResponseToOutputStream(out,
+                            Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()));
 
         } catch (NotAuthorizedException e){
             sendDenied(out);

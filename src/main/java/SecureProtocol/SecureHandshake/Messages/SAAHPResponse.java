@@ -89,7 +89,9 @@ public class SAAHPResponse {
         out.writeUTF(m2_hash);
 
         AssymetricEncription asymm = new AssymetricEncription();
-        String keyEncryptedWithPublicKey = asymm.encript(secretKey.getEncoded(), publickey);
+        
+        byte[] chatKey = KeyManager.getInstance().getKey(header.getChatID()).getEncoded();
+        String keyEncryptedWithPublicKey = asymm.encript(chatKey, publickey);
 
         out.writeUTF(keyEncryptedWithPublicKey);
         out.writeUTF(Signer.getInstace().doSign(cert + m2_hash + keyEncryptedWithPublicKey));

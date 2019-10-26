@@ -21,7 +21,7 @@ public class Security {
 
     //Phase1
     public Security(String multicastGroup) throws Exception{
-        this.keyManager = new KeyManager();
+        this.keyManager = KeyManager.getInstance();
         Key key = keyManager.getKey(multicastGroup);
         this.endPoint = keyManager.getEndPoint(multicastGroup);
         this.symmetricEncription = new SymmetricEncription(endPoint.getSea(), endPoint.getMode(), endPoint.getPadding(), key);
