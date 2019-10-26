@@ -7,6 +7,7 @@ import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
 import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.XMLSecurityProperty;
+import SecureProtocol.Security.CertificateChain;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -32,7 +33,7 @@ public class RequestHandler implements Runnable{
         final SAAHPResponse serverResponse;
         try {
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
-            X509Certificate certificate = (X509Certificate)clientRequest.certificate();
+            CertificateChain certificate = (CertificateChain)clientRequest.certificate();
 
             clientRequest.verify();
 

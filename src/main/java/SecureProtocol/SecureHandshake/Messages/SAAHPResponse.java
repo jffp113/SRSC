@@ -9,6 +9,7 @@ import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.EndPoints.EndPointSerializer;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
+import SecureProtocol.Security.CertificateChain;
 import SecureProtocol.Security.Encription.AssymetricEncription;
 import SecureProtocol.Security.Encription.Integrity;
 import SecureProtocol.Security.Encription.Signer;
@@ -109,7 +110,7 @@ public class SAAHPResponse {
             return response;
         }
         String certAsString = in.readUTF();
-        Certificate cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(certAsString.getBytes()));
+        Certificate cert = CertificateUtil.parseCertificates(new ByteArrayInputStream(certAsString.getBytes()));
 
         String m2HashB64Encrypted = in.readUTF();
         byte[] m2_hash_Encrypted = Utils.base64Decode(m2HashB64Encrypted);
@@ -173,7 +174,7 @@ public class SAAHPResponse {
     }
 
     public void verify() throws Exception{
-        ((X509Certificate)this.cert).checkValidity();
+        ((CertificateChain)this.cert).verify("Leaf"); //TODO
     }
 
     public SAAHPHeader getHeader() {

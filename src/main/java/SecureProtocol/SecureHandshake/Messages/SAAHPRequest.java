@@ -55,7 +55,7 @@ public class SAAHPRequest {
     private static void genObjectsFromPayload(SAAHPRequest request,DataInputStream dataStream) throws Exception {
         request.permCertificate = dataStream.readUTF();
         request.signatureBase64 = dataStream.readUTF();
-        request.cert = CertificateUtil.parseCertificate(new ByteArrayInputStream(request.permCertificate.getBytes()));
+        request.cert = CertificateUtil.parseCertificates(new ByteArrayInputStream(request.permCertificate.getBytes()));
     }
 
     public SAAHPHeader getHeader() {
@@ -67,7 +67,7 @@ public class SAAHPRequest {
     }
 
     public void verify() throws Exception{
-        ((X509Certificate)this.cert).checkValidity();
+        //((X509Certificate)this.cert).checkValidity(); TODO
         String message = permCertificate;
         if(!signer.verifySignature(message, signatureBase64, certificate().getPublicKey()))
             throw new NotAuthorizedException("");

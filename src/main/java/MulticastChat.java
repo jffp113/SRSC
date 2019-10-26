@@ -54,13 +54,6 @@ public class MulticastChat extends Thread {
     isActive = true;
 
     // create & configure multicast socket
-    //default
-    //msocket = new MulticastSocket(port);
-
-    //phase1
-    //msocket = new SMCPSocket(username, group.toString(), port);
-
-    //phase2
     Client c = new Client(username,password, group.toString(),port);
     c.getEndPoinsAndKeyFromSAAHPServer();
     msocket = new SMCPSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
@@ -87,7 +80,7 @@ public class MulticastChat extends Thread {
   // Issues an error message
   protected void error(String message) {
     System.err.println(new java.util.Date() + ": MulticastChat: "
-            + message);
+                       + message);
   }
 
   // Envio de mensagem na op. de JOIN
@@ -103,7 +96,7 @@ public class MulticastChat extends Thread {
 
     byte[] data = byteStream.toByteArray();
     DatagramPacket packet = new DatagramPacket(data, data.length, group,
-            msocket.getLocalPort());
+                                               msocket.getLocalPort());
     msocket.send(packet);
   }
 
@@ -131,7 +124,7 @@ public class MulticastChat extends Thread {
 
     byte[] data = byteStream.toByteArray();
     DatagramPacket packet = new DatagramPacket(data, data.length, group,
-            msocket.getLocalPort());
+                                               msocket.getLocalPort());
     msocket.send(packet);
   }
 
@@ -161,7 +154,7 @@ public class MulticastChat extends Thread {
 
     byte[] data = byteStream.toByteArray();
     DatagramPacket packet = new DatagramPacket(data, data.length, group,
-            msocket.getLocalPort());
+                                               msocket.getLocalPort());
     msocket.send(packet);
   }
 
@@ -194,8 +187,8 @@ public class MulticastChat extends Thread {
         msocket.receive(packet);
 
         DataInputStream istream =
-                new DataInputStream(new ByteArrayInputStream(packet.getData(),
-                        packet.getOffset(), packet.getLength()));
+          new DataInputStream(new ByteArrayInputStream(packet.getData(),
+                packet.getOffset(), packet.getLength()));
 
         long magic = istream.readLong();
 
@@ -205,25 +198,25 @@ public class MulticastChat extends Thread {
         }
         int opCode = istream.readInt();
         switch (opCode) {
-          case JOIN:
-            processJoin(istream, packet.getAddress(), packet.getPort());
-            break;
-          case LEAVE:
-            processLeave(istream, packet.getAddress(), packet.getPort());
-            break;
-          case MESSAGE:
-            processMessage(istream, packet.getAddress(), packet.getPort());
-            break;
-          default:
-            error("Cod de operacao desconhecido " + opCode + " enviado de "
-                    + packet.getAddress() + ":" + packet.getPort());
+        case JOIN:
+          processJoin(istream, packet.getAddress(), packet.getPort());
+          break;
+        case LEAVE:
+          processLeave(istream, packet.getAddress(), packet.getPort());
+          break;
+        case MESSAGE:
+          processMessage(istream, packet.getAddress(), packet.getPort());
+          break;
+        default:
+          error("Cod de operacao desconhecido " + opCode + " enviado de "
+                + packet.getAddress() + ":" + packet.getPort());
         }
 
       } catch (InterruptedIOException e) {
 
         /**
          * O timeout e usado apenas para forcar um loopback e testar
-         * o valor isActive
+		 * o valor isActive
          */
 
 
