@@ -79,7 +79,7 @@ public class SAAHPResponse {
         SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding",
                 Rekeying.xorKeyWithHash(credencials,secretKey));
 
-        byte[] m2 = genMessage();
+        byte[] m2 = genMessage(chatID);
         byte[] hash = new Integrity("SHA512").getHash(m2);
         dataStream.write(hash);
         dataStream.write(m2);
@@ -90,15 +90,15 @@ public class SAAHPResponse {
 
         AssymetricEncription asymm = new AssymetricEncription();
 
-        byte[] chatKey = KeyManager.getInstance().getKey(chatID).getEncoded();
-        String keyEncryptedWithPublicKey = asymm.encript(chatKey, publickey);
+        String keyEncryptedWithPublicKey = asymm.encript(secretKey.getEncoded(), publickey);
 
         out.writeUTF(keyEncryptedWithPublicKey);
         out.writeUTF(Signer.getInstace().doSign(cert + m2_hash + keyEncryptedWithPublicKey));
     }
 
-    private byte[] genMessage() {
-        String eps = EndPointSerializer.serializeToString(endpoint, Utils.base64Encode(publickey.getEncoded()));
+    private byte[] genMessage(String chatID) throws Exception {
+        byte[] chatKey = KeyManager.getInstance().getKey(chatID).getEncoded();
+        String eps = EndPointSerializer.serializeToString(endpoint, Utils.base64Encode(chatKey));
         String nonce = System.nanoTime()+"";
         return (eps + "\n" + nonce).getBytes();
     }

@@ -20,8 +20,11 @@ public class KeyManager {
     private static KeyManager keyManager;
 
     public static KeyManager getInstance() throws Exception {
-        if(keyManager == null)
+        if(keyManager == null) {
             keyManager = new KeyManager();
+            keyManager.genKeyStore(XMLSecurityProperty.getEndPoints("SMCP.conf").values());
+        }
+
         return keyManager;
     }
 
