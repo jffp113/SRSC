@@ -97,7 +97,6 @@ public class CertificateChain  extends Certificate {
         for(Certificate cer : this.certChain){
             bd.append(String.format(PERM_CERTIFICATE, Base64.getEncoder().encodeToString(cer.getEncoded())));
         }
-        System.out.println(bd.toString());
         return bd.toString();
     }
 

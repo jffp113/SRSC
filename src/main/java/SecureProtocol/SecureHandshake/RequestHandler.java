@@ -8,6 +8,7 @@ import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 import SecureProtocol.Security.CertificateChain;
+import SecureProtocol.Utils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,6 +34,8 @@ public class RequestHandler implements Runnable{
             clientRequest = SAAHPRequest.getRequestFromInputStream(in);
             CertificateChain certificate = (CertificateChain)clientRequest.certificate();
             clientRequest.verify();
+
+            Utils.log("[Request] " + clientRequest.getHeader().getChatID() + " @ " +clientRequest.getHeader().getPeerID());
 
             SAAHPHeader header = clientRequest.getHeader();
             String groupID = header.getChatID();
