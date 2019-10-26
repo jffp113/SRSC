@@ -6,7 +6,6 @@ import SecureProtocol.SecureHandshake.Messages.SAAHPRequest;
 import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
 import SecureProtocol.SecureHandshake.ServerComponents.Credentials;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
-import SecureProtocol.SecureSocket.EndPoints.XMLSecurityProperty;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 import SecureProtocol.Security.CertificateChain;
 
@@ -14,7 +13,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.security.cert.X509Certificate;
 
 public class RequestHandler implements Runnable{
     public static final String HANDLER_PROTOCOL_VERSION = "SAAHP/1.0";
