@@ -64,7 +64,7 @@ public class SAAHPResponse {
         out.writeUTF(header.serializeToString());
     }
 
-    public void sendResponseToOutputStream(DataOutputStream out,String credencials) throws Exception {
+    public void sendResponseToOutputStream(DataOutputStream out, String credencials, String chatID) throws Exception {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream dataStream = new DataOutputStream(byteStream);
 
@@ -89,8 +89,8 @@ public class SAAHPResponse {
         out.writeUTF(m2_hash);
 
         AssymetricEncription asymm = new AssymetricEncription();
-        
-        byte[] chatKey = KeyManager.getInstance().getKey(header.getChatID()).getEncoded();
+
+        byte[] chatKey = KeyManager.getInstance().getKey(chatID).getEncoded();
         String keyEncryptedWithPublicKey = asymm.encript(chatKey, publickey);
 
         out.writeUTF(keyEncryptedWithPublicKey);

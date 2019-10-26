@@ -42,7 +42,7 @@ public class RequestHandler implements Runnable{
             SAAHPResponse
                     .createSuccessResponse(endpoint, certificate.getPublicKey(), clientRequest.getHeader().getPeerID())
                     .sendResponseToOutputStream(out,
-                            Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()));
+                            Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()), groupID);
 
         } catch (NotAuthorizedException e){
             sendDenied(out);
