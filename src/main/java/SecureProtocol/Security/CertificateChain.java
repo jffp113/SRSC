@@ -1,7 +1,6 @@
 package SecureProtocol.Security;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import sun.security.validator.TrustStoreUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -11,6 +10,7 @@ import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,13 +22,13 @@ public class CertificateChain  extends Certificate {
     private Set<X509Certificate> trustCertificastes;
     private KeyStore truststore;
 
-    public CertificateChain(List<Certificate> certChain){
+    public CertificateChain(List<Certificate> certChain) throws KeyStoreException {
         super("CertificateChain");
         this.certChain = certChain;
         loadKeyStoreAndTrustCertificates();
     }
 
-    public void loadKeyStoreAndTrustCertificates(){
+    public void loadKeyStoreAndTrustCertificates() throws KeyStoreException {
         KeyStore keystore = null;
         try {
             keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -37,7 +37,8 @@ public class CertificateChain  extends Certificate {
             e.printStackTrace();
         }
         this.truststore = keystore;
-        trustCertificastes = TrustStoreUtil.getTrustedCerts(truststore);
+        trustCertificastes = new HashSet<>();
+        trustCertificastes.add((X509Certificate) truststore.getCertificate("ca"));
 
     }
 
