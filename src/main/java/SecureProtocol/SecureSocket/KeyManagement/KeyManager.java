@@ -17,7 +17,15 @@ public class KeyManager {
     private KeyStore keyStore;
     private Map<String,EndPoint> endPointsMap;
 
-    public KeyManager() throws Exception{
+    private static KeyManager keyManager;
+
+    public static KeyManager getInstance() throws Exception {
+        if(keyManager == null)
+            keyManager = new KeyManager();
+        return keyManager;
+    }
+
+    private KeyManager() throws Exception{
         endPointsMap = XMLSecurityProperty.getEndPoints("SMCP.conf");
         genKeyStore(endPointsMap.values());
     }
