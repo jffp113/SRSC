@@ -47,10 +47,7 @@ public class KeyManager {
                         ep.getSea(),
                         ep.getSeaks());
 
-                generateKeyAndStore(
-                        "MAC/"+ ep.getMulticastGroup(),
-                        ep.getMac(),
-                        ep.getMakks());
+
             }
         }
     }
