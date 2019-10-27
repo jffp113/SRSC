@@ -28,13 +28,11 @@ import java.util.Arrays;
 
 public class SAAHPResponse {
 
-    public EndPoint getEndpoint() {
-        return endpoint;
-    }
-
-    public Key getKey() {
-        return key;
-    }
+    private final static String ALG = "AES";
+    private final static int SIZE = 256;
+    private final static String MODE = "CBC";
+    private final static String PADDING = "PKCS5Padding";
+    private final static String HASH_ALG = "SHA512";
 
     private SAAHPHeader header;
     private EndPoint endpoint;
@@ -57,9 +55,6 @@ public class SAAHPResponse {
     }
 
     public void sendResponseToOutputStream(DataOutputStream out) throws Exception {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        DataOutputStream dataStream = new DataOutputStream(byteStream);
-
         //write header
         out.writeUTF(header.serializeToString());
     }
@@ -75,12 +70,12 @@ public class SAAHPResponse {
         String cert = CertificateUtil.getPermCertificateString();
         out.writeUTF(cert);
 
-        SecretKey secretKey = KeyManager.genRandomKey("AES", 256);
-        SymmetricEncription symm = new SymmetricEncription("AES","CBC","PKCS5Padding",
+        SecretKey secretKey = KeyManager.genRandomKey(ALG, SIZE);
+        SymmetricEncription symm = new SymmetricEncription(ALG,MODE,PADDING,
                 Rekeying.xorKeyWithHash(credencials,secretKey));
 
         byte[] m2 = genMessage(chatID);
-        byte[] hash = new Integrity("SHA512").getHash(m2);
+        byte[] hash = new Integrity(HASH_ALG).getHash(m2);
         dataStream.write(hash);
         dataStream.write(m2);
 
@@ -120,13 +115,13 @@ public class SAAHPResponse {
 
         AssymetricEncription assymetricEncription = new AssymetricEncription();
         byte[] k = assymetricEncription.decript(k_encrypted, CertificateUtil.getPersonalPrivateKey());
-        Key key = new SecretKeySpec(k, "AES");
+        Key key = new SecretKeySpec(k, ALG);
 
-        SymmetricEncription symmetricEncription = new SymmetricEncription("AES","CBC","PKCS5Padding",
+        SymmetricEncription symmetricEncription = new SymmetricEncription(ALG,MODE,PADDING,
                 Rekeying.xorKeyWithHash(userPasswordHasHash,key));
         byte[] m2_hash = symmetricEncription.decrypt(m2_hash_Encrypted);
 
-        Integrity integrity = new Integrity("SHA512");
+        Integrity integrity = new Integrity(HASH_ALG);
         int hashSize = integrity.getHashSize();
         int m2Size = m2_hash.length - hashSize;
 
@@ -175,7 +170,7 @@ public class SAAHPResponse {
         return s;
     }
 
-    public void verify() throws Exception{
+    public void verify(){
         ((CertificateChain)this.cert).verify("Leaf"); //TODO
     }
 
@@ -188,5 +183,13 @@ public class SAAHPResponse {
         if(!Signer.getInstace().verifySignature(cert+m2_hash+keyEncryptedWithPublicKey,
                 signature,certificate.getPublicKey()))
           throw new NotAuthorizedException("");
+    }
+
+    public EndPoint getEndpoint() {
+        return endpoint;
+    }
+
+    public Key getKey() {
+        return key;
     }
 }

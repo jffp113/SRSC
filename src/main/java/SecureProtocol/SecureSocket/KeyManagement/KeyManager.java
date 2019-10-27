@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class KeyManager {
 
-    //TODO this passwords are temporary
     private static final String PASSWORD = "Teste";
     private static final String KEYSTORE_FILE = "keystore.JCEKS";
     private KeyStore keyStore;
