@@ -53,17 +53,10 @@ public class SMCPSocket extends MulticastSocket {
 
     @Override
     public void receive(DatagramPacket p) throws IOException {
-        byte[] bufferTmp = new byte[p.getLength()];
-        DatagramPacket tmp = new DatagramPacket(bufferTmp,0,bufferTmp.length);
-        super.receive(tmp);
-
-        p.setPort(tmp.getPort());
-        p.setAddress(tmp.getAddress());
-
+        super.receive(p);
         byte[] buffer = p.getData();
-        byte[] payload = smcpMessage.verifyAndGetMessage(tmp.getData());
-        System.arraycopy(payload,0,buffer,0,payload.length);
-        p.setLength(payload.length);
+        byte[] message = smcpMessage.verifyAndGetMessage(p.getData());
+        System.arraycopy(message,0,buffer,0,message.length);
     }
 
 
