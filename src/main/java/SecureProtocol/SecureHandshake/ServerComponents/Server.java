@@ -1,6 +1,7 @@
 package SecureProtocol.SecureHandshake.ServerComponents;
 
 import SecureProtocol.SecureHandshake.RequestHandler;
+import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -27,7 +28,8 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        KeyManager.getInstance();
         (new Server()).startToServe();
     }
 
