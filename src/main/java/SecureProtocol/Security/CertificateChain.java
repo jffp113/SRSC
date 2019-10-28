@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class CertificateChain  extends Certificate {
     private static final String PERM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n";
-    public static final String CERT_KEY_CATRUSTEDCERT_JKS = "./certKey/catrustedcert.jks";
+    public static final String CERT_KEY_CATRUSTEDCERT_JKS = "CA/catrustedcert.jks";
 
     private List<Certificate> certChain;
     private Set<X509Certificate> trustCertificastes;

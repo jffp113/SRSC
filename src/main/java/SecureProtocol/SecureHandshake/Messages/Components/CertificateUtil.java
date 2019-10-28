@@ -16,9 +16,9 @@ import java.util.List;
 
 public class CertificateUtil {
     private static final String PERM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n";
-    private static final File PERM_CERTIFICATE_FILE = new File("./certKey/certchain.crt");
+    private static final File PERM_CERTIFICATE_FILE = new File("certchain.crt");
     private static final String PASSWORD = "password";
-    public static final String KEYSTORE = "./certKey/leaf.jks";
+    public static final String KEYSTORE = "leaf.jks";
 
     private static Certificate personalCertificate;
     private static PrivateKey privateKey;
