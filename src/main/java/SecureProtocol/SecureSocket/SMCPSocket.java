@@ -20,25 +20,13 @@ public class SMCPSocket extends MulticastSocket {
     private Security sec;
     private SMCPMessage smcpMessage;
 
-    //Phase 1
-    public SMCPSocket(String peerId, String group, int port) throws Exception {
-        super(port);
-        //PeerId iguais podiam dar replying pelo seqnum
-        this.peerId = peerId + System.nanoTime() + Math.random();
-        this.multicastGroup = group.substring(1) + ":" + port;
-
-        this.sec = new Security(multicastGroup);
-        sAttributes = base64Encode(sec.getIntegrity().getHash(sec.getEndPointBytes()));
-        smcpMessage = new SMCPMessage(multicastGroup, sec, sAttributes, this.peerId);
-    }
-
-    //Phase 2
     public SMCPSocket(String peerId, String group, int port, EndPoint endPoint, Key key) throws Exception {
         super(port);
+
         //PeerId iguais podiam dar replying pelo seqnum
         this.peerId = peerId + System.nanoTime() + Math.random();
-        this.multicastGroup = group.substring(1) + ":" + port;
 
+        this.multicastGroup = group.substring(1) + ":" + port;
         this.sec = new Security(endPoint, key);
         sAttributes = base64Encode(sec.getIntegrity().getHash(sec.getEndPointBytes()));
         smcpMessage = new SMCPMessage(multicastGroup, sec, sAttributes, this.peerId);
@@ -58,6 +46,4 @@ public class SMCPSocket extends MulticastSocket {
         byte[] message = smcpMessage.verifyAndGetMessage(p.getData());
         System.arraycopy(message,0,buffer,0,message.length);
     }
-
-
 }

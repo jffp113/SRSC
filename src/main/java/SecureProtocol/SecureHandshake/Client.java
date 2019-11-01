@@ -3,6 +3,7 @@ package SecureProtocol.SecureHandshake;
 import SecureProtocol.SecureHandshake.Messages.Components.CertificateUtil;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPCode;
 import SecureProtocol.SecureHandshake.Messages.Components.SAAHPHeader;
+import SecureProtocol.SecureHandshake.Messages.Components.SAAHPMethods;
 import SecureProtocol.SecureHandshake.Messages.SAAHPRequest;
 import SecureProtocol.SecureHandshake.Messages.SAAHPResponse;
 import SecureProtocol.SecureSocket.EndPoints.EndPoint;
@@ -36,6 +37,7 @@ public class Client {
         this.port = port;
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
+        getEndPoinsAndKeyFromSAAHPServer();
     }
 
     public EndPoint getEndPoint(){
@@ -46,9 +48,9 @@ public class Client {
         return key;
     }
 
-    public void getEndPoinsAndKeyFromSAAHPServer() throws Exception {
+    private void getEndPoinsAndKeyFromSAAHPServer() throws Exception {
         SAAHPRequest req = new SAAHPRequest(CertificateUtil.getPersonalCertificate(),
-                SAAHPHeader.createNewRequestHeader("GETINFO", multichatGroup.substring(1) + ":"
+                SAAHPHeader.createNewRequestHeader(SAAHPMethods.JOINCHAT.toString(), multichatGroup.substring(1) + ":"
                         + port, peerID, "SAAHP/1.0"));
 
         req.sendRequestToOutputStream(out);

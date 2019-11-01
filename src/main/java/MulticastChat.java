@@ -54,9 +54,8 @@ public class MulticastChat extends Thread {
     isActive = true;
 
     // create & configure multicast socket
-    Client c = new Client(username,password, group.toString(),port);
-    c.getEndPoinsAndKeyFromSAAHPServer();
-    msocket = new SMCPSocket(username, group.toString(), port, c.getEndPoint(), c.getKey());
+    Client communicationToServer = new Client(username,password, group.toString(),port);
+    msocket = new SMCPSocket(username, group.toString(), port, communicationToServer.getEndPoint(), communicationToServer.getKey());
 
     msocket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT_MILLIS);
     msocket.setTimeToLive(ttl);

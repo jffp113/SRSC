@@ -1,7 +1,5 @@
 package SecureProtocol.SecureHandshake.Messages.Components;
 
-import SecureProtocol.Utils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

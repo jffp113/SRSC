@@ -28,11 +28,8 @@ public class Credentials {
 
     public static String getUserCredencial(String userName) throws NotAuthorizedException {
         String password = users.get(userName);
-
         if(password == null)
             throw new NotAuthorizedException("User does not exist: " + userName);
-
-
         return password;
     }
 }
