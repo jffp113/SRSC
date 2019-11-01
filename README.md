@@ -64,11 +64,10 @@
 		jarsigner -keystore keys.jks -storepass password -keypass password --signedjar SAAHPServer[Signed].jar SAAHPServer.jar myKey
 
 
-#TEST
-	#Correr Servidor
+	#Correr Servidor para testar
 		java -jar SAAHPServer.jar
 
-	#Correr Clientes
+	#Correr Clientes para testar 
 		java -jar SecureMChatClient hj hjhjhj 224.5.6.7 9000
 		java -jar SecureMChatClient jorge jorge123 224.5.6.7 9000
 
