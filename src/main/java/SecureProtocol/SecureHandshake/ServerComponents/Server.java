@@ -2,34 +2,37 @@ package SecureProtocol.SecureHandshake.ServerComponents;
 
 import SecureProtocol.SecureHandshake.RequestHandler;
 import SecureProtocol.SecureSocket.KeyManagement.KeyManager;
+import SecureProtocol.Utils;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Server {
 
-    public static final int N_THREADS = 10;
-    public static final int PORT = 6789;
+    private static final int N_THREADS = 10;
+    private static final int PORT = 6789;
 
     private ThreadPoolExecutor threadPool;
 
     private final ServerSocket serverSocket;
 
-    public Server() throws IOException {
+    private Server() throws IOException {
         threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(N_THREADS);
         serverSocket = new ServerSocket(PORT);
     }
 
-    public void startToServe() throws IOException {
-        while(true){
-            threadPool.execute(new RequestHandler(serverSocket.accept()));
-        }
+    private void startToServe() throws IOException {
+        while(true) threadPool.execute(new RequestHandler(serverSocket.accept()));
     }
 
     public static void main(String[] args) throws Exception {
         KeyManager.getInstance();
+        Utils.log("");
+        Utils.log2("Server initialized: " + InetAddress.getLocalHost().getHostAddress() + ":" + PORT);
+        Utils.log("");
         (new Server()).startToServe();
     }
 

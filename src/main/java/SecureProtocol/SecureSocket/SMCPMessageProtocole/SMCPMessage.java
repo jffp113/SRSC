@@ -11,12 +11,13 @@ import java.util.*;
 
 public class SMCPMessage {
 
-    public static final String MESSAGE_HASH_VIOLATED = "[MESSAGE HASH] Integrity Violated";
-    public static final String REPLYING_SEQNUM = "[SEQNUM] Replaying Detection";
-    public static final String REPLYING_NOUCE = "[NOUCE] Replaying Detection";
-    public static final String MAC_VIOLATED = "[MAC] Violated.";
+    private static final String MESSAGE_HASH_VIOLATED = "[MESSAGE HASH] Integrity Violated";
+    private static final String REPLYING_SEQNUM = "[SEQNUM] Replaying Detection";
+    private static final String REPLYING_NOUCE = "[NOUCE] Replaying Detection";
+    private static final String MAC_VIOLATED = "[MAC] Violated.";
 
-    private String multicastGroup;
+    private static final int nonceMapMaxSize = 20;
+
     private Security sec;
     private String peerID;
     private SMCPHeader header;
@@ -25,12 +26,11 @@ public class SMCPMessage {
     private Map<String, Set<Long>> nonceMap;
 
     public SMCPMessage(String multicastGroup, Security sec, String sAttributes, String peedID) throws IOException{
-        this.multicastGroup = multicastGroup;
         this.sec = sec;
         this.peerID = peedID;
         header = new SMCPHeader(multicastGroup, sAttributes);
         seqnumMap = new HashMap<>(100);
-        nonceMap = new HashMap<>(100);
+        nonceMap = new HashMap<>(nonceMapMaxSize);
         seqnum = 0;
     }
 
@@ -75,7 +75,7 @@ public class SMCPMessage {
         return deserializeSecurePayLoad(sec.getSymmetricEncription().decrypt(securePayload));
     }
 
-    public byte[] deserializeSecurePayLoad(byte[] payLoad) throws IOException {
+    private byte[] deserializeSecurePayLoad(byte[] payLoad) throws IOException {
         ByteArrayInputStream byteStream = new ByteArrayInputStream(payLoad,0,payLoad.length);
         DataInputStream dataStream = new DataInputStream(byteStream);
 
@@ -104,7 +104,7 @@ public class SMCPMessage {
         if(atualSeNum == null)
             seqnumMap.put(fromPeerId, seqnum);
         else{
-            if(atualSeNum.intValue() == seqnum - 1)
+            if(atualSeNum == seqnum - 1)
                 seqnumMap.replace(fromPeerId, seqnum);
             else throw new SMCPException(REPLYING_SEQNUM);
         }
@@ -116,7 +116,12 @@ public class SMCPMessage {
             nonceS = new TreeSet<>();
         if(nonceS.contains(nonce))
             throw new SMCPException(REPLYING_NOUCE);
-        nonceS.add(nonce);
+        //Garbage Collection
+        if(nonceS.size() < nonceMapMaxSize) {
+            nonceS.add(nonce);
+            nonceMap.put(fromPeerId, nonceS);
+        }else
+            nonceMap.put(fromPeerId, null);
     }
 
     private byte[] verifyMAC(byte[] smcpMessage_mac) throws IOException {

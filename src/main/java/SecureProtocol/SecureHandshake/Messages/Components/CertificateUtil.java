@@ -6,13 +6,10 @@ import java.io.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.List;
 
 public class CertificateUtil {
     private static final String PERM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n";
@@ -41,7 +38,7 @@ public class CertificateUtil {
         try {
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(new FileInputStream(KEYSTORE), PASSWORD.toCharArray());
-            return (PrivateKey)keystore.getKey("leaf","password".toCharArray());
+            return (PrivateKey)keystore.getKey("leaf",PASSWORD.toCharArray());
         } catch (Exception e) {
             e.printStackTrace();
             return null;

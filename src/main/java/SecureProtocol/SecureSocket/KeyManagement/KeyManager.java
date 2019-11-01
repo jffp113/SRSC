@@ -45,8 +45,6 @@ public class KeyManager {
                         ep.getMulticastGroup(),
                         ep.getSea(),
                         ep.getSeaks());
-
-
             }
         }
     }

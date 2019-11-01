@@ -41,7 +41,7 @@ public class RequestHandler implements Runnable{
             String groupID = header.getChatID();
             EndPoint endpoint = KeyManager.getInstance().getEndPoint(groupID);
             SAAHPResponse
-                    .createSuccessResponse(endpoint, certificate.getPublicKey(), clientRequest.getHeader().getPeerID())
+                    .createSuccessResponse(endpoint, certificate.getPublicKey())
                     .sendResponseToOutputStream(out,
                             Credentials.getUserCredencial(clientRequest.getHeader().getPeerID()), groupID);
 
@@ -72,7 +72,6 @@ public class RequestHandler implements Runnable{
         }
     }
 
-
     private void handlerResourcesClose(){
         try {
             in.close();
@@ -82,10 +81,5 @@ public class RequestHandler implements Runnable{
             e.printStackTrace();
         }
     }
-
-
-
-
-
 
 }

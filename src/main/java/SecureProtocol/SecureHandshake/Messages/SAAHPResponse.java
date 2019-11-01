@@ -25,6 +25,7 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Set;
 
 public class SAAHPResponse {
 
@@ -39,7 +40,6 @@ public class SAAHPResponse {
     private PublicKey publickey;
     private Certificate cert;
     private Key key;
-    private String user;
 
     private SAAHPResponse(EndPoint endpoint, PublicKey publickey){
         this.header = null;
@@ -59,7 +59,7 @@ public class SAAHPResponse {
         out.writeUTF(header.serializeToString());
     }
 
-    public void sendResponseToOutputStream(DataOutputStream out, String credencials, String chatID) throws Exception {
+    public void sendResponseToOutputStream(DataOutputStream out, String credentials, String chatID) throws Exception {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream dataStream = new DataOutputStream(byteStream);
 
@@ -72,7 +72,7 @@ public class SAAHPResponse {
 
         SecretKey secretKey = KeyManager.genRandomKey(ALG, SIZE);
         SymmetricEncription symm = new SymmetricEncription(ALG,MODE,PADDING,
-                Rekeying.xorKeyWithHash(credencials,secretKey));
+                Rekeying.xorKeyWithHash(credentials,secretKey));
 
         byte[] m2 = genMessage(chatID);
         byte[] hash = new Integrity(HASH_ALG).getHash(m2);
@@ -133,12 +133,12 @@ public class SAAHPResponse {
         byte[] m2 = new byte[m2Size];
         dataStream.read(m2);
 
-        byte[] tmp = integrity.getHash(m2);
         if(!Arrays.equals(integrity.getHash(m2),hash))
             throw new Exception();
 
         String[] m = new String(m2).split("\n");
-        String nouce = m[10]; //TODO
+
+        String nonce = m[10]; //TODO
 
         EndPointSerializer e = EndPointSerializer.deserialize(new String(m2));
         Key chatKey = new SecretKeySpec(Utils.base64Decode(e.b64Key), e.endPoint.getSea());
@@ -152,9 +152,8 @@ public class SAAHPResponse {
     }
 
 
-    public static SAAHPResponse createSuccessResponse(EndPoint endpoint, PublicKey key,String user){
+    public static SAAHPResponse createSuccessResponse(EndPoint endpoint, PublicKey key){
         SAAHPResponse s = new SAAHPResponse(endpoint, key);
-        s.user = user;
         s.header = SAAHPHeader.createNewResponseHeader(SAAHPCode.ACCEPTED, RequestHandler.HANDLER_PROTOCOL_VERSION);
         return s;
     }
@@ -171,7 +170,7 @@ public class SAAHPResponse {
     }
 
     public void verify(){
-        ((CertificateChain)this.cert).verify("Leaf"); //TODO
+        ((CertificateChain)this.cert).verify("Leaf");
     }
 
     public SAAHPHeader getHeader() {

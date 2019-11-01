@@ -18,6 +18,8 @@ public class CertificateChain  extends Certificate {
     private static final String PERM_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n";
     public static final String CERT_KEY_CATRUSTEDCERT_JKS = "CA/catrustedcert.jks";
 
+    private static final String STRONG_PASSWORD = "chageit";
+
     private List<Certificate> certChain;
     private Set<X509Certificate> trustCertificastes;
     private KeyStore truststore;
@@ -32,7 +34,7 @@ public class CertificateChain  extends Certificate {
         KeyStore keystore = null;
         try {
             keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keystore.load(new FileInputStream(CERT_KEY_CATRUSTEDCERT_JKS), "chageit".toCharArray());
+            keystore.load(new FileInputStream(CERT_KEY_CATRUSTEDCERT_JKS), STRONG_PASSWORD.toCharArray());
         } catch (Exception e) {
             e.printStackTrace();
         }

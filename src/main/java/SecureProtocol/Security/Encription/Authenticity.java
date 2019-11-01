@@ -26,9 +26,4 @@ public class Authenticity extends AbstractSecurity {
             return mac;
         });
     }
-
-    public int getMacSize(){
-        return hMac.getMacLength();
-    }
-
 }
